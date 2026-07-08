@@ -88,6 +88,12 @@ TIME_ZONE     = 'Africa/Lagos'
 USE_I18N      = True
 USE_TZ        = True
 
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    default="https://placement-system-8gyc.onrender.com",
+    cast=Csv(),
+)
+
 # ── STATIC FILES ──
 STATIC_URL       = '/static/'
 STATIC_ROOT      = os.path.join(BASE_DIR, 'staticfiles')

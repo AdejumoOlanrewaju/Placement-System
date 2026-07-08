@@ -45,9 +45,13 @@ def setup_view(request):
 
     if request.method == 'POST':
         from django.core.management import call_command
-        call_command('migrate')
-        call_command('seed_nigeria')
-        call_command('seed_companies')
+        print("Starting Nigeria seed...")
+        call_command("seed_nigeria")
+        print("Nigeria seed complete")
+
+        print("Starting company seed...")
+        call_command("seed_companies")
+        print("Company seed complete")
 
         User.objects.create_superuser(
             username   = 'admin',

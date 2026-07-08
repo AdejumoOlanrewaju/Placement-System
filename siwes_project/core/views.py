@@ -72,9 +72,9 @@ def setup_view(request):
     return HttpResponse("""
         <h2>SIWES System Setup</h2>
         <p>This will seed the database and create the admin account.</p>
-        <form method="POST">
-            {% csrf_token %}
-            <button type="submit">Run Setup</button>
+        <form method='POST'>
+            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}'>
+            <button type='submit'>Run Setup</button>
         </form>
     """)
 

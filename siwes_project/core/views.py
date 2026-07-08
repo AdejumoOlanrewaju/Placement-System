@@ -38,45 +38,37 @@ from .sms import notify_student_status_change
 
 
 def setup_view(request):
-    from core.models import User, State
+    from core.models import User
 
-    # block if already set up
     if User.objects.filter(role='admin').exists():
-        return HttpResponse("System already set up.", status=403)
+        return HttpResponse("System already set up. This page is disabled.", status=403)
 
     if request.method == 'POST':
-        # run migrations
         from django.core.management import call_command
         call_command('migrate')
         call_command('seed_nigeria')
         call_command('seed_companies')
 
-        # create admin
         User.objects.create_superuser(
             username   = 'admin',
             email      = 'admin@siwes.com',
-            password   = 'admin2026',
+            password   = 'admin2024',
             first_name = 'System',
             last_name  = 'Admin',
             role       = 'admin',
         )
 
         return HttpResponse("""
-            <h2>Setup Complete</h2>
-            <p>Admin created — username: admin, password: admin2026</p>
-            <p>Nigeria data seeded.</p>
-            <p>Companies seeded.</p>
-            <a href='/login/'>Go to Login</a>
+            <!DOCTYPE html><html><body style='font-family:sans-serif;max-width:500px;margin:100px auto;padding:20px;'>
+            <h2 style='color:green;'>✅ Setup Complete</h2>
+            <p><strong>Admin credentials:</strong></p>
+            <p>Username: <strong>admin</strong></p>
+            <p>Password: <strong>admin2024</strong></p>
+            <p><a href='/login/' style='color:#2563eb;'>Go to Login →</a></p>
+            </body></html>
         """)
 
-    return HttpResponse("""
-        <h2>SIWES System Setup</h2>
-        <p>This will seed the database and create the admin account.</p>
-        <form method='POST'>
-            <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}'>
-            <button type='submit'>Run Setup</button>
-        </form>
-    """)
+    return render(request, 'setup.html')
 
 # ─────────────────────────────────────────
 # REGISTER — STUDENT

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SIWES Setup</title>
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 100px auto; padding: 20px; }
+        button { background: #2563eb; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 15px; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <h2>SIWES System Setup</h2>
+    <p>This will run migrations, seed Nigeria data, seed companies, and create the admin account.</p>
+    <p><strong>Only run this once.</strong></p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Run Setup</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<main>
+    <div class="wrapper row">
+        <div class="banner-img-container col-lg-6 col-md-12 d-lg-block d-none">
+            <div class="banner-bg"></div>
+            <img class="banner-img" src="{% static 'core/images/banner-2.jpg' %}" alt="">
+        </div>
+        <div class="col-lg-6 col-md-12 d-flex auth-card-container">
+            <div class="auth-card register">
+                <div>
+                    <h3 class="brand-title text-center mb-1">Student Registration</h3>
+                    <p class="text-center text-muted mb-4">Create your SIWES account</p>
+                </div>
+                <div class="auth-form-util-wrapper">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field, errors in form.errors.items %}
+                            <p><strong>{{ field }}:</strong>
+                                {% for error in errors %}{{ error }}{% endfor %}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        <div class="row g-3">
+        
+                            <div class="col-6">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Matric Number</label>
+                                <input type="text" name="matric_number" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Department</label>
+                                <input type="text" name="department" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Institution</label>
+                                <input type="text" name="institution" class="form-control" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Skills <small class="text-muted">(single space-separated)</small></label>
+                                <textarea name="skills" class="form-control" rows="2"></textarea>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Preferred State</label>
+                                <select name="preferred_state" id="id_preferred_state" class="form-select">
+                                    <option value="">-- Select State --</option>
+                                    {% for state in form.preferred_state.field.queryset %}
+                                    <option value="{{ state.id }}">{{ state.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Preferred LGA</label>
+                                <select name="preferred_lga" id="id_preferred_lga" class="form-select">
+                                    <option value="">-- Select LGA --</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password1" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Confirm Password</label>
+                                <input type="password" name="password2" class="form-control" required>
+                            </div>
+        
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100  auth-submit-btn ">Create Account</button>
+                    </form>
+        
+                    <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}" class="login-link">Login</a></p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+{% endblock %}
+
+
+
+{% block scripts %}
+<script>
+    // AJAX — load LGAs when state changes
+    document.getElementById('id_preferred_state').addEventListener('change', function () {
+        const stateId = this.value;
+        const lgaSelect = document.getElementById('id_preferred_lga');
+
+        lgaSelect.innerHTML = '<option value="">-- Loading... --</option>';
+
+        if (stateId) {
+            fetch(`/ajax/load-lgas/?state_id=${stateId}`)
+                .then(res => res.json())
+                .then(data => {
+                    lgaSelect.innerHTML = '<option value="">-- Select LGA --</option>';
+                    data.forEach(lga => {
+                        lgaSelect.innerHTML += `<option value="${lga.id}">${lga.name}</option>`;
+                    });
+                });
+        } else {
+            lgaSelect.innerHTML = '<option value="">-- Select LGA --</option>';
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,441 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load custom_filters %}
+
+<div class="dash-wrap">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+
+        <div class="sidebar-brand">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">S <span>P</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-name">{{ request.user.get_full_name }}</div>
+            <div class="user-dept">{{ profile.department }}</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+
+            <a href="#" class="nav-item active">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </a>
+
+            <a href="{% url 'search_placements' %}" class="nav-item">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.35-4.35" />
+                </svg>
+                Find Placements
+            </a>
+
+            <div class="nav-label">My Activity</div>
+
+            <a href="{% url 'my_profile' %}" class="nav-item">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                My Profile
+            </a>
+
+            <a href="{% url 'my_applications' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'my_applications' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="16" y1="13" x2="8" y2="13" />
+                    <line x1="16" y1="17" x2="8" y2="17" />
+                </svg>
+                My Applications
+                {% if offered > 0 %}
+                <span class="nav-badge" style="background:#7c3aed;">{{ offered }}</span>
+                {% endif %}
+            </a>
+
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color: #dc2626;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+            </a>
+        </div>
+
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Welcome back, {{ request.user.first_name }}</h5>
+                    <p class="mb-0">{{ profile.institution }} &mdash; {{ profile.matric_number }}</p>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <a href="{% url 'search_placements' %}" class="btn-search-placement">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="M21 21l-4.35-4.35" />
+                    </svg>
+                    Find Placements
+                </a>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ total_applied }}</div>
+                    <div class="stat-label">Total Applied</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ pending }}</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ accepted }}</div>
+                    <div class="stat-label">Accepted</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg>
+                    </div>
+                    <div class="stat-value">{{ rejected }}</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+
+            <!-- ── AI RECOMMENDATIONS ── -->
+            <div style="margin-bottom:32px;">
+                <div class="section-header">
+                    <div>
+                        <div class="section-title">
+                            Recommended for You
+                        </div>
+                        <p style="font-size:12.5px;color:var(--text-muted);margin-top:3px;">
+                            AI-powered matches based on your department, location, and skills
+                        </p>
+                    </div>
+                    <form method="POST" action="{% url 'refresh_recommendations' %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                            style="background:var(--primary-light);color:var(--primary-clr);border:1px solid #bfdbfe;padding:8px 16px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all .18s;"
+                            onmouseover="this.style.background='var(--primary-clr)';this.style.color='#fff'"
+                            onmouseout="this.style.background='var(--primary-light)';this.style.color='var(--primary-clr)'">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10" />
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                            </svg>
+                            Refresh
+                        </button>
+                    </form>
+                </div>
+
+                {% if recommendations %}
+                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:14px;">
+                    {% for rec in recommendations %}
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);transition:transform .18s,box-shadow .18s,border-color .18s;position:relative;overflow:hidden;"
+                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)';this.style.borderColor='#bfdbfe'"
+                        onmouseout="this.style.transform='none';this.style.boxShadow='var(--shadow)';this.style.borderColor='var(--border)'">
+
+                        <!-- Score Bar -->
+                        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--border);">
+                            <div
+                                style="height:100%;background:'{% if rec.score >= 0.8 %}var(--success){% elif rec.score >= 0.6 %}var(--primary-clr){% else %}var(--warning){% endif %};width:{{ rec.score|floatformat:2 }}00%;transition:width .4s ease;'">
+                            </div>
+                        </div>
+
+                        <!-- Header -->
+                        <div
+                            style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-top:6px;">
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <div
+                                    style="width:38px;height:38px;border-radius:10px;background:var(--primary-light);color:var(--primary-clr);font-family:'Syne',sans-serif;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    {{ rec.listing.company.company_name|first|upper }}
+                                </div>
+                                <div>
+                                    <div style="font-weight:700;font-size:13px;color:var(--text);">
+                                        {{ rec.listing.company.company_name }}</div>
+                                    <div style="font-size:11.5px;color:var(--text-muted);">{{ rec.listing.company.industry }}</div>
+                                </div>
+                            </div>
+                            <!-- Match Score -->
+                            <div style="text-align:right;flex-shrink:0;">
+                                <div
+                                    style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:'{% if rec.score >= 0.8 %}var(--success){% elif rec.score >= 0.6 %}var(--primary-clr){% else %}var(--warning){% endif %};'">
+                                    {{ rec.score|multiply:100 }}%
+                                </div>
+                                <div style="font-size:10px;color:var(--text-muted);font-weight:600;">match</div>
+                            </div>
+                        </div>
+
+                        <!-- Title -->
+                        <div
+                            style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:8px;">
+                            {{ rec.listing.title }}
+                        </div>
+
+                        <!-- AI Reason -->
+                        <div
+                            style="background:var(--primary-light);border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:12px;display:flex;gap:8px;align-items:flex-start;">
+                            <!-- <span style="font-size:13px;flex-shrink:0;">🤖</span> -->
+                            <p style="font-size:12.5px;color:var(--primary-clr);line-height:1.5;font-weight:500;">
+                                {{ rec.reason }}
+                            </p>
+                        </div>
+
+                        <!-- Meta Tags -->
+                        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;">
+                            <span
+                                style="display:inline-flex;align-items:center;gap:4px;background:var(--bg);color:var(--text-muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--border);">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                {{ rec.listing.lga }}, {{ rec.listing.state }}
+                            </span>
+                            <span
+                                style="display:inline-flex;align-items:center;gap:4px;background:var(--bg);color:var(--text-muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--border);">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                                </svg>
+                                {{ rec.listing.department_required }}
+                            </span>
+                            <span
+                                style="display:inline-flex;align-items:center;gap:4px;background:var(--bg);color:var(--text-muted);font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:6px;border:1px solid var(--border);">
+                                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="9" cy="7" r="4" />
+                                </svg>
+                                {{ rec.listing.slots_available }} slot{{ rec.listing.slots_available|pluralize }}
+                            </span>
+                        </div>
+
+                        <!-- Apply Button -->
+                        <!-- Apply Button -->
+                        {% if rec.listing.id in applied_listing_ids %}
+                        <div
+                            style="display:flex;align-items:center;justify-content:center;gap:6px;background:#f1f5f9;color:var(--text-muted);border-radius:var(--radius-sm);padding:9px;font-size:13px;font-weight:700;border:1px solid var(--border);cursor:not-allowed;">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            Already Applied
+                        </div>
+                        {% else %}
+                        <a href="{% url 'apply_placement' rec.listing.id %}"
+                            style="display:flex;align-items:center;justify-content:center;gap:6px;background:var(--primary-clr);color:#fff;border-radius:var(--radius-sm);padding:9px;font-size:13px;font-weight:700;text-decoration:none;transition:background .18s;"
+                            onmouseover="this.style.background='var(--primary-dark)'"
+                            onmouseout="this.style.background='var(--primary-clr)'">
+                            Apply Now
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                                <polyline points="12 5 19 12 12 19" />
+                            </svg>
+                        </a>
+                        {% endif %}
+
+                    </div>
+                    {% endfor %}
+                </div>
+
+                {% else %}
+                <div
+                    style="background:var(--surface);border:1px dashed var(--border);border-radius:var(--radius);padding:40px 24px;text-align:center;">
+                    <!-- <div
+                            style="width:56px;height:56px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                            <span style="font-size:24px;">✨</span>
+                        </div> -->
+                    <div
+                        style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--text);margin-bottom:6px;">
+                        No recommendations yet
+                    </div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-bottom:18px;">
+                        Click Refresh to let AI find the best placements for your profile.
+                    </p>
+                    <form method="POST" action="{% url 'refresh_recommendations' %}">
+                        {% csrf_token %}
+                        <button type="submit"
+                            style="background:var(--primary-clr);color:#fff;border:none;padding:10px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;display:inline-flex;align-items:center;gap:7px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 4 23 10 17 10" />
+                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                            </svg>
+                            Generate Recommendations
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Applications Table -->
+            <div id="applications">
+                <div class="section-header">
+                    <div class="section-title">My Applications</div>
+                    <a href="{% url 'search_placements' %}" class="btn-primary-sm">+ Apply to More</a>
+                </div>
+
+                <div class="table-card">
+                    {% if applications %}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Position</th>
+                                <th>Location</th>
+                                <th>Date Applied</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for app in applications %}
+                            <tr>
+                                <td>
+                                    <div class="company-cell">
+                                        <div class="company-avatar">
+                                            {{ app.listing.company.company_name|first|upper }}
+                                        </div>
+                                        <div class="company-name">
+                                            {{ app.listing.company.company_name }}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ app.listing.title }}</td>
+                                <td style="color: var(--text-muted); font-size:13px;">
+                                    📍 {{ app.listing.lga }}, {{ app.listing.state }}
+                                </td>
+                                <td style="color: var(--text-muted); font-size:13px;">
+                                    {{ app.applied_at|date:"d M Y" }}
+                                </td>
+                                <td>
+                                    {% if app.status == 'pending' %}
+                                    <span class="badge badge-pending">Pending</span>
+                                    {% elif app.status == 'reviewed' %}
+                                    <span class="badge badge-reviewed">Reviewed</span>
+                                    {% elif app.status == 'offered' %}
+                                    <span class="badge"
+                                        style="background:#fdf4ff;color:#7c3aed;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;">Offered
+                                        🎉</span>
+                                    {% elif app.status == 'offer_accepted' %}
+                                    <span class="badge badge-accepted">Offer Accepted</span>
+                                    {% elif app.status == 'offer_declined' %}
+                                    <span class="badge badge-rejected">Offer Declined</span>
+                                    {% elif app.status == 'accepted' %}
+                                    <span class="badge badge-accepted">Accepted</span>
+                                    {% elif app.status == 'rejected' %}
+                                    <span class="badge badge-rejected">Rejected</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <div class="empty-icon">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                            </svg>
+                        </div>
+                        <h6>No applications yet</h6>
+                        <p>Start searching for SIWES placements that match your department and location.</p>
+                        <a href="{% url 'search_placements' %}" class="btn-primary-sm">Find Placements</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // close sidebar when clicking outside on mobile
+    document.addEventListener('click', function (e) {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.querySelector('.sidebar-toggle');
+        if (window.innerWidth <= 768 &&
+            !sidebar.contains(e.target) &&
+            !toggle.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    });
+</script>
+
+{% endblock %}

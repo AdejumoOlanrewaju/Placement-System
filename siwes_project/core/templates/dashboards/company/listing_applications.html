@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* paste shared CSS */
+</style>
+
+<div class="dash-wrap">
+    <!-- paste company sidebar here -->
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">S <span>P</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-name">{{ profile.company_name }}</div>
+            <div class="user-dept">{{ profile.industry }}</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+            <a href="{% url 'company_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'company_dashboard' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'post_listing' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'post_listing' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Post a Listing
+            </a>
+
+            <div class="nav-label">Manage</div>
+            <a href="{% url 'company_profile' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'company_profile' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                Company Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color:#dc2626;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Applications</h5>
+                    <p class="mb-0">{{ listing.title }} &mdash; {{ listing.company.company_name }}</p>
+                </div>
+            </div>
+            <a href="{% url 'company_dashboard' %}" class="btn-ghost">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="content">
+
+            <!-- Stats -->
+            <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+                <div class="stat-card teal">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg></div>
+                    <div class="stat-value">{{ total }}</div>
+                    <div class="stat-label">Total</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></div>
+                    <div class="stat-value">{{ pending }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg></div>
+                    <div class="stat-value">{{ accepted }}</div>
+                    <div class="stat-label">Accepted</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg></div>
+                    <div class="stat-value">{{ rejected }}</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <a href="?" class="tab {% if not selected_status %}tab-active{% endif %}">All</a>
+                <a href="?status=pending"
+                    class="tab {% if selected_status == 'pending'  %}tab-active{% endif %}">Pending</a>
+                <a href="?status=reviewed"
+                    class="tab {% if selected_status == 'reviewed' %}tab-active{% endif %}">Reviewed</a>
+                <a href="?status=accepted"
+                    class="tab {% if selected_status == 'accepted' %}tab-active{% endif %}">Accepted</a>
+                <a href="?status=rejected"
+                    class="tab {% if selected_status == 'rejected' %}tab-active{% endif %}">Rejected</a>
+            </div>
+
+            <!-- Application Cards -->
+            {% if applications %}
+            <div style="display:flex;flex-direction:column;gap:14px;">
+                {% for app in applications %}
+                <div
+                    style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);">
+                    <div
+                        style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;">
+
+                        <div style="display:flex;gap:14px;align-items:flex-start;">
+                            <div
+                                style="width:46px;height:46px;border-radius:12px;background:var(--primary-light);color:var(--primary);font-family:'Syne',sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                {{ app.student.user.first_name|first|upper }}
+                            </div>
+                            <div>
+                                <div
+                                    style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--text);">
+                                    {{ app.student.user.get_full_name }}
+                                </div>
+                                <div style="font-size:12.5px;color:var(--text-muted);margin-top:3px;">
+                                    {{ app.student.matric_number }} &mdash; {{ app.student.department }}
+                                </div>
+                                <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">
+                                    {{ app.student.institution }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if app.status == 'pending' %}
+                        <span class="badge badge-pending">Pending</span>
+                        {% elif app.status == 'reviewed' %}
+                        <span class="badge badge-reviewed">Reviewed</span>
+                        {% elif app.status == 'accepted' %}
+                        <span class="badge badge-accepted">Accepted</span>
+                        {% elif app.status == 'rejected' %}
+                        <span class="badge badge-rejected">Rejected</span>
+                        {% endif %}
+                    </div>
+
+                    {% if app.cover_letter %}
+                    <div
+                        style="background:var(--bg);border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:14px;font-size:13px;color:var(--text-muted);line-height:1.6;border-left:3px solid var(--primary);">
+                        {{ app.cover_letter }}
+                    </div>
+                    {% endif %}
+
+                    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;flex-wrap:wrap;">
+                        <span style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            Applied {{ app.applied_at|date:"d M Y" }}
+                        </span>
+                        {% if app.student.skills %}
+                        <span style="font-size:12px;color:var(--text-muted);">Skills: {{ app.student.skills }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Update Status Form -->
+                    <form method="POST" action="{% url 'update_application_status' app.id %}"
+                        style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;padding-top:14px;border-top:1px solid var(--border);">
+                        {% csrf_token %}
+                        <div style="flex:1;min-width:160px;">
+                            <div class="form-label" style="margin-bottom:5px;">Update Status</div>
+                            <div class="select-wrap">
+                                <select name="status" class="form-control" style="height:38px;">
+                                    <option value="pending" {% if app.status == 'pending' %}selected{% endif %}>Pending
+                                    </option>
+                                    <option value="reviewed" {% if app.status == 'reviewed' %}selected{% endif %}>Reviewed
+                                    </option>
+                                    <option value="offered" {% if app.status == 'offered' %}selected{% endif %}>Offered
+                                    </option>
+                                    <option value="accepted" {% if app.status == 'accepted' %}selected{% endif %}>Accepted
+                                    </option>
+                                    <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Rejected
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="flex:2;min-width:200px;">
+                            <div class="form-label" style="margin-bottom:5px;">Note to Student <span
+                                    style="color:var(--text-muted);font-weight:400;">(optional)</span></div>
+                            <input type="text" name="company_note" class="form-control" style="height:38px;"
+                                placeholder="e.g. We will contact you shortly" value="{{ app.company_note }}">
+                        </div>
+                        <button type="submit" class="btn-primary-sm" style="height:38px;">Update</button>
+                    </form>
+
+                </div>
+                {% endfor %}
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                    </svg>
+                </div>
+                <h6>No applications {% if selected_status %}with status "{{ selected_status }}"{% endif %}</h6>
+                <p>{% if selected_status %}Try a different filter.{% else %}No students have applied to this listing
+                    yet.{% endif %}</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    document.addEventListener('click', function (e) {
+        const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
+        if (window.innerWidth <= 768 && !s.contains(e.target) && !t.contains(e.target)) s.classList.remove('open');
+    });
+</script>
+{% endblock %}

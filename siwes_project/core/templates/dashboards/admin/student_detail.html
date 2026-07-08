@@ -1,0 +1,400 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* paste full admin CSS */
+</style>
+
+<div class="dash-wrap">
+    <!-- paste admin sidebar -->
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">S <span>P</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ request.user.username|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-name">{{ request.user.username }}</div>
+            <div class="user-dept">System Administrator</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Overview</div>
+            <a href="{% url 'admin_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </a>
+
+            <div class="nav-label">Manage</div>
+            <a href="{% url 'pending_companies' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'pending_companies' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Pending Verification
+                {% if pending_cos %}
+                <span class="nav-badge">{{ pending_cos }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'all_companies' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_companies' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Companies
+            </a>
+            <a href="{% url 'all_students' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_students' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                </svg>
+                Students
+            </a>
+            <a href="{% url 'all_applications' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_applications' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                </svg>
+                Applications
+            </a>
+            <a href="{% url 'admin_register_company' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'admin_register_company' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <line x1="20" y1="8" x2="20" y2="14" />
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                </svg>
+                Register Company
+            </a>
+            <a href="{% url 'manage_admins' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'manage_admins' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Admin Accounts
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color:#dc2626;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Student Detail</h5>
+                    <p>{{ student.user.get_full_name }} — {{ student.matric_number }}</p>
+                </div>
+            </div>
+            <a href="{% url 'all_students' %}" class="btn-ghost">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="content">
+            <div style="display:grid;grid-template-columns:300px 1fr;gap:20px;align-items:start;">
+
+                <!-- ID Card -->
+                <div
+                    style="background:var(--primary-clr);border-radius:var(--radius);padding:28px 22px;text-align:center;box-shadow:0 8px 32px rgba(37,99,235,.25);position:sticky;top:80px;">
+                    <div
+                        style="width:72px;height:72px;border-radius:50%;background:rgba(255,255,255,.2);border:3px solid rgba(255,255,255,.4);color:#fff;font-family:'Syne',sans-serif;font-size:26px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+                        {{ student.user.first_name|first|upper }}{{ student.user.last_name|first|upper }}
+                    </div>
+                    <div
+                        style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#fff;margin-bottom:4px;">
+                        {{ student.user.get_full_name }}
+                    </div>
+                    <div
+                        style="display:inline-block;background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;padding:3px 12px;border-radius:20px;margin-bottom:20px;">
+                        Student
+                    </div>
+                    <div
+                        style="border-top:1px solid rgba(255,255,255,.2);padding-top:18px;display:flex;flex-direction:column;gap:10px;text-align:left;">
+                        <div
+                            style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.85);">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                                <polyline points="22,6 12,13 2,6" />
+                            </svg>
+                            {{ student.user.email|default:"Not set" }}
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.85);">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 4.18 2 2 0 0 1 3.6 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.6a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                            </svg>
+                            {{ student.user.phone|default:"Not set" }}
+                        </div>
+                        <div
+                            style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,.85);">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="18" rx="2" />
+                                <line x1="16" y1="2" x2="16" y2="6" />
+                                <line x1="8" y1="2" x2="8" y2="6" />
+                                <line x1="3" y1="10" x2="21" y2="10" />
+                            </svg>
+                            Joined {{ student.created_at|date:"d M Y" }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Details -->
+                <div style="display:flex;flex-direction:column;gap:16px;">
+
+                    <!-- Stats -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;">
+                        <div class="stat-card blue">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                    <polyline points="14 2 14 8 20 8" />
+                                </svg></div>
+                            <div class="stat-value">{{ total_applied }}</div>
+                            <div class="stat-label">Applied</div>
+                        </div>
+                        <div class="stat-card amber">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <polyline points="12 6 12 12 16 14" />
+                                </svg></div>
+                            <div class="stat-value">{{ pending }}</div>
+                            <div class="stat-label">Pending</div>
+                        </div>
+                        <div class="stat-card green">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg></div>
+                            <div class="stat-value">{{ accepted }}</div>
+                            <div class="stat-label">Accepted</div>
+                        </div>
+                        <div class="stat-card red">
+                            <div class="stat-icon"><svg viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <line x1="15" y1="9" x2="9" y2="15" />
+                                    <line x1="9" y1="9" x2="15" y2="15" />
+                                </svg></div>
+                            <div class="stat-value">{{ rejected }}</div>
+                            <div class="stat-label">Rejected</div>
+                        </div>
+                    </div>
+
+                    <!-- Academic Info -->
+                    <div
+                        style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);">
+                        <div
+                            style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-clr)"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                                <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                            </svg>
+                            Academic Information
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                            <div>
+                                <div
+                                    style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px;">
+                                    Matric Number</div>
+                                <div style="font-size:14px;font-weight:700;color:var(--primary-clr);">{{ student.matric_number }}</div>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px;">
+                                    Department</div>
+                                <div style="font-size:14px;font-weight:600;color:var(--text);">{{ student.department }}
+                                </div>
+                            </div>
+                            <div style="grid-column:1/-1;">
+                                <div
+                                    style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px;">
+                                    Institution</div>
+                                <div style="font-size:14px;font-weight:600;color:var(--text);">{{ student.institution }}
+                                </div>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px;">
+                                    Preferred State</div>
+                                <div style="font-size:14px;font-weight:600;color:var(--text);">{{ student.preferred_state|default:"Not set" }}</div>
+                            </div>
+                            <div>
+                                <div
+                                    style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:4px;">
+                                    Preferred LGA</div>
+                                <div style="font-size:14px;font-weight:600;color:var(--text);">{{ student.preferred_lga|default:"Not set" }}</div>
+                            </div>
+                        </div>
+                        {% if student.skills %}
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+                            <div
+                                style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:10px;">
+                                Skills</div>
+                            <div style="display:flex;flex-wrap:wrap;gap:7px;">
+                                {% for skill in student.skills.split %}
+                                <span
+                                    style="background:var(--primary-light);color:var(--primary);font-size:12px;font-weight:600;padding:4px 12px;border-radius:20px;border:1px solid #bfdbfe;">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Applications -->
+                    <div
+                        style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;">
+                        <div
+                            style="padding:16px 20px;border-bottom:1px solid var(--border);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);">
+                            Application History
+                        </div>
+                        {% if applications %}
+                        <table style="width:100%;border-collapse:collapse;">
+                            <thead style="background:#f8fafc;">
+                                <tr>
+                                    <th
+                                        style="padding:11px 18px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);text-align:left;">
+                                        Company</th>
+                                    <th
+                                        style="padding:11px 18px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);text-align:left;">
+                                        Position</th>
+                                    <th
+                                        style="padding:11px 18px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);text-align:left;">
+                                        Date</th>
+                                    <th
+                                        style="padding:11px 18px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);text-align:left;">
+                                        Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for app in applications %}
+                                <tr style="border-bottom:1px solid var(--border);">
+                                    <td style="padding:13px 18px;font-size:13.5px;font-weight:600;">{{
+                                        app.listing.company.company_name }}</td>
+                                    <td style="padding:13px 18px;font-size:13px;color:var(--text-muted);">{{
+                                        app.listing.title }}</td>
+                                    <td style="padding:13px 18px;font-size:12px;color:var(--text-muted);">{{
+                                        app.applied_at|date:"d M Y" }}</td>
+                                    <td style="padding:13px 18px;">
+                                        {% if app.status == 'pending' %}
+                                        <span class="badge badge-pending">Pending</span>
+                                        {% elif app.status == 'reviewed' %}
+                                        <span class="badge badge-reviewed">Reviewed</span>
+                                        {% elif app.status == 'offered' %}
+                                        <span
+                                            style="display:inline-flex;align-items:center;gap:5px;background:#fdf4ff;color:#7c3aed;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;">Offered</span>
+                                        {% elif app.status == 'offer_accepted' %}
+                                        <span class="badge badge-accepted">Offer Accepted</span>
+                                        {% elif app.status == 'offer_declined' %}
+                                        <span class="badge badge-rejected">Offer Declined</span>
+                                        {% elif app.status == 'accepted' %}
+                                        <span class="badge badge-accepted">Accepted</span>
+                                        {% elif app.status == 'rejected' %}
+                                        <span class="badge badge-rejected">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                        {% else %}
+                        <div style="padding:40px;text-align:center;color:var(--text-muted);font-size:13px;">
+                            No applications yet.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div
+                        style="background:var(--surface);border:1px solid #fecaca;border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);">
+                        <div
+                            style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--danger);margin-bottom:8px;">
+                            Danger Zone</div>
+                        <p style="font-size:13px;color:var(--text-muted);margin-bottom:16px;">Deleting this student
+                            removes all their applications permanently.</p>
+                        <form method="POST" action="{% url 'admin_delete_student' student.id %}"
+                            onsubmit="return confirm('Permanently delete {{ student.user.get_full_name }}? This cannot be undone.')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-danger-sm">
+                                <svg viewBox="0 0 24 24">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                                </svg>
+                                Delete Student
+                            </button>
+                        </form>
+                        <!-- Admin Password Reset -->
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #fecaca;">
+                            <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:10px;">Reset
+                                Password</div>
+                            <form method="POST" action="{% url 'admin_reset_password' student.user.id %}"
+                                style="display:flex;gap:10px;">
+                                {% csrf_token %}
+                                <input type="text" name="new_password" placeholder="New password (min 6 chars)"
+                                    style="flex:1;padding:9px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"
+                                    required>
+                                <button type="submit" class="btn-ghost">Reset</button>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    document.addEventListener('click', function (e) {
+        const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
+        if (window.innerWidth <= 768 && s && t && !s.contains(e.target) && !t.contains(e.target)) s.classList.remove('open');
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+<main>
+    <div class="wrapper row">
+        <div class="banner-img-container col-lg-6 col-md-12 d-lg-block d-none">
+            <div class="banner-bg"></div>
+            <img class="banner-img" src="{% static 'core/images/banner-1.jpg' %}" alt="">
+        </div>
+        <div class="col-lg-6 col-md-12 d-flex auth-card-container">
+            <div class="auth-card">
+                <div>
+                    <h3 class="brand-title mb-1">Welcome Back</h3>
+                    <p class="text-muted mb-4">Sign in to your account</p>
+                </div>
+                <div class="auth-form-util-wrapper">
+                    <form class="auth-form" method="POST">
+                        {% csrf_token %}
+
+
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn w-100 auth-submit-btn">Login</button>
+                        <div style="text-align:center;margin-top:14px;">
+                            <a href="{% url 'password_reset' %}"
+                                style="font-size:13px;color:var(--text-muted);text-decoration:none;"
+                                onmouseover="this.style.color='var(--primary)'"
+                                onmouseout="this.style.color='var(--text-muted)'">
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </form>
+
+                    <!-- <hr> -->
+                    <div class="rd-container">
+                        <div class="rd-text-container">
+                            <p class="text-center rd-text">New here?</p>
+
+                        </div>
+                        <div class="rd-btn-container d-flex gap-2 ">
+                            <a href="{% url 'register_student' %}" class="rd-st rd-btn">Register as Student</a>
+                            <a href="{% url 'register_company' %}" class="rd-cm rd-btn">Register as Company</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+{% endblock %}

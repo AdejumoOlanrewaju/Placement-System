@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    /* paste shared CSS */
+</style>
+
+<div class="dash-wrap">
+    <!-- paste company sidebar here -->
+
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">S <span>P</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-name">{{ profile.company_name }}</div>
+            <div class="user-dept">{{ profile.industry }}</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+            <a href="{% url 'company_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'company_dashboard' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'post_listing' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'post_listing' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Post a Listing
+            </a>
+
+            <div class="nav-label">Manage</div>
+            <a href="{% url 'company_profile' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'company_profile' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                Company Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color:#dc2626;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="main">
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Post a Listing</h5>
+                    <p class="mb-0">Create a new SIWES placement opportunity</p>
+                </div>
+            </div>
+            <a href="{% url 'company_dashboard' %}" class="btn-ghost">
+                <svg viewBox="0 0 24 24">
+                    <polyline points="15 18 9 12 15 6" />
+                </svg>
+                Back
+            </a>
+        </div>
+
+        <div class="content">
+            <div class="form-card" style="max-width:780px; margin:0 auto;">
+                <div style="margin-bottom:24px;">
+                    <div class="section-title">New Placement Listing</div>
+                    <p style="font-size:13px;color:var(--text-muted);margin-top:4px;">Fill in the details below.
+                        Students will see this listing once submitted.</p>
+                </div>
+
+                {% if messages %}
+                {% for msg in messages %}
+                <div
+                    style="background:var(--danger-light);border:1px solid #fecaca;border-radius:var(--radius-sm);padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--danger);font-weight:500;">
+                    {{ msg }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="form-grid">
+
+                        <div class="form-group full">
+                            <label class="form-label">Position Title</label>
+                            <input type="text" name="title" class="form-control"
+                                placeholder="e.g. Software Development Intern" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Department Required</label>
+                            <input type="text" name="department_required" class="form-control"
+                                placeholder="e.g. Computer Science" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Slots Available</label>
+                            <input type="number" name="slots_available" class="form-control" min="1" value="1" required>
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="form-label">Skills Required</label>
+                            <input type="text" name="skills_required" class="form-control"
+                                placeholder="e.g. Python, Django, MySQL">
+                        </div>
+
+                        <div class="form-group full">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="4"
+                                placeholder="Describe the placement role and what students will do..."
+                                required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">State</label>
+                            <div class="select-wrap">
+                                <select name="state" id="post_state" class="form-control" required>
+                                    <option value="">-- Select State --</option>
+                                    {% for state in form.state.field.queryset %}
+                                    <option value="{{ state.id }}">{{ state.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">LGA</label>
+                            <div class="select-wrap">
+                                <select name="lga" id="post_lga" class="form-control" required>
+                                    <option value="">-- Select LGA --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Application Deadline <span
+                                    style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+                            <input type="date" name="deadline" class="form-control">
+                        </div>
+
+                    </div>
+
+                    <div
+                        style="margin-top:28px;padding-top:20px;border-top:1px solid var(--border);display:flex;gap:12px;justify-content:flex-end;align-items: center;">
+                        <a href="{% url 'company_dashboard' %}" class="btn-ghost">Cancel</a>
+                        <button type="submit" class="btn-primary-sm d-flex gp-1 align-items-center">
+                            <svg style = "width : 30px; height : 30px;" viewBox="0 0 24 24" stroke = "white">
+                                <line x1="12" y1="5" x2="12" y2="19" />
+                                <line x1="5" y1="12" x2="19" y2="12" />
+                            </svg>
+                            Post Listing
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    document.getElementById('post_state').addEventListener('change', function () {
+        const stateId = this.value;
+        const lgaSelect = document.getElementById('post_lga');
+        lgaSelect.innerHTML = '<option value="">-- Loading... --</option>';
+        if (stateId) {
+            fetch(`/ajax/load-lgas/?state_id=${stateId}`)
+                .then(res => res.json())
+                .then(data => {
+                    lgaSelect.innerHTML = '<option value="">-- Select LGA --</option>';
+                    data.forEach(lga => { lgaSelect.innerHTML += `<option value="${lga.id}">${lga.name}</option>`; });
+                });
+        } else { lgaSelect.innerHTML = '<option value="">-- Select LGA --</option>'; }
+    });
+</script>
+{% endblock %}

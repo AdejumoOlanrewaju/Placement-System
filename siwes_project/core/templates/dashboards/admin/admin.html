@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="dash-wrap">
+
+    <!-- SIDEBAR -->
+    {% with pending_cos=pending_cos %}
+    <!-- paste admin sidebar here -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">S <span>P</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ request.user.username|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-name">{{ request.user.username }}</div>
+            <div class="user-dept">System Administrator</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Overview</div>
+            <a href="{% url 'admin_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </a>
+
+            <div class="nav-label">Manage</div>
+            <a href="{% url 'pending_companies' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'pending_companies' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Pending Verification
+                {% if pending_cos %}
+                <span class="nav-badge">{{ pending_cos }}</span>
+                {% endif %}
+            </a>
+            <a href="{% url 'all_companies' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_companies' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                    <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                Companies
+            </a>
+            <a href="{% url 'all_students' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_students' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                    <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                </svg>
+                Students
+            </a>
+            <a href="{% url 'all_applications' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'all_applications' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                </svg>
+                Applications
+            </a>
+            <a href="{% url 'admin_register_company' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'admin_register_company' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="8.5" cy="7" r="4" />
+                    <line x1="20" y1="8" x2="20" y2="14" />
+                    <line x1="23" y1="11" x2="17" y2="11" />
+                </svg>
+                Register Company
+            </a>
+            <a href="{% url 'manage_admins' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'manage_admins' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                Admin Accounts
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color:#dc2626;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+            </a>
+        </div>
+    </aside>
+    {% endwith %}
+
+    <div class="main">
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Admin Dashboard</h5>
+                    <p class="mb-0">SIWES Placement System — Control Panel</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="content">
+
+            <!-- Pending Alert -->
+            {% if pending_cos > 0 %}
+            <div class="alert-banner warning">
+                <div class="alert-text">
+                    ⏳ <strong>{{ pending_cos }} company{{ pending_cos|pluralize }}</strong> awaiting verification.
+                </div>
+                <a href="{% url 'pending_companies' %}" class="btn-primary-sm">Review Now</a>
+            </div>
+            {% endif %}
+
+            <!-- Stats Row 1 — Users -->
+            <div style="margin-bottom:8px;">
+                <div class="section-title" style="margin-bottom:14px;">Users</div>
+            </div>
+            <div class="stats-grid" style="margin-bottom:28px;">
+                <div class="stat-card blue">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                            <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                        </svg></div>
+                    <div class="stat-value">{{ total_students }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-card teal">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></div>
+                    <div class="stat-value">{{ total_companies }}</div>
+                    <div class="stat-label">Total Companies</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg></div>
+                    <div class="stat-value">{{ verified_cos }}</div>
+                    <div class="stat-label">Verified</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></div>
+                    <div class="stat-value">{{ pending_cos }}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card red">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="15" y1="9" x2="9" y2="15" />
+                            <line x1="9" y1="9" x2="15" y2="15" />
+                        </svg></div>
+                    <div class="stat-value">{{ rejected_cos }}</div>
+                    <div class="stat-label">Rejected</div>
+                </div>
+            </div>
+
+            <!-- Stats Row 2 — Placements -->
+            <div style="margin-bottom:14px;">
+                <div class="section-title">Placements</div>
+            </div>
+            <div class="stats-grid" style="margin-bottom:32px;">
+                <div class="stat-card purple">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                            <polyline points="14 2 14 8 20 8" />
+                        </svg></div>
+                    <div class="stat-value">{{ total_listings }}</div>
+                    <div class="stat-label">Total Listings</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                            <polyline points="22 4 12 14.01 9 11.01" />
+                        </svg></div>
+                    <div class="stat-value">{{ active_listings }}</div>
+                    <div class="stat-label">Active Listings</div>
+                </div>
+                <div class="stat-card teal">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                        </svg></div>
+                    <div class="stat-value">{{ total_apps }}</div>
+                    <div class="stat-label">Applications</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24">
+                            <polyline points="20 6 9 17 4 12" />
+                        </svg></div>
+                    <div class="stat-value">{{ accepted_apps }}</div>
+                    <div class="stat-label">Accepted</div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="table-grid" style="">
+
+                <!-- Recent Students -->
+                <div>
+                    <div class="section-header">
+                        <div class="section-title">Recent Students</div>
+                        <a href="{% url 'all_students' %}" class="btn-ghost">View All</a>
+                    </div>
+                    <div class="table-card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Department</th>
+                                    <th>Joined</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for s in recent_students %}
+                                <tr>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:10px;">
+                                            <div
+                                                style="width:30px;height:30px;border-radius:8px;background:var(--primary-light);color:var(--primary);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                {{ s.user.first_name|first|upper }}
+                                            </div>
+                                            <span style="font-weight:600;font-size:13px;">{{ s.user.get_full_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="color:var(--text-muted);font-size:13px;">{{ s.department }}</td>
+                                    <td style="color:var(--text-muted);font-size:12px;">{{ s.created_at|date:"d M Y" }}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Recent Companies -->
+                <div>
+                    <div class="section-header">
+                        <div class="section-title">Recent Companies</div>
+                        <a href="{% url 'all_companies' %}" class="btn-ghost">View All</a>
+                    </div>
+                    <div class="table-card">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Industry</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for c in recent_companies %}
+                                <tr>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:10px;">
+                                            <div
+                                                style="width:30px;height:30px;border-radius:8px;background:var(--info-light);color:var(--info);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                                {{ c.company_name|first|upper }}
+                                            </div>
+                                            <span style="font-weight:600;font-size:13px;">{{ c.company_name }}</span>
+                                        </div>
+                                    </td>
+                                    <td style="color:var(--text-muted);font-size:13px;">{{ c.industry }}</td>
+                                    <td>
+                                        {% if c.status == 'pending' %}
+                                        <span class="badge badge-pending">Pending</span>
+                                        {% elif c.status == 'verified' %}
+                                        <span class="badge badge-verified">Verified</span>
+                                        {% elif c.status == 'rejected' %}
+                                        <span class="badge badge-rejected">Rejected</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    document.addEventListener('click', function (e) {
+        const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
+        if (window.innerWidth <= 768 && s && t && !s.contains(e.target) && !t.contains(e.target)) s.classList.remove('open');
+    });
+</script>
+{% endblock %}

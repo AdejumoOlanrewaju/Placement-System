@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="dash-wrap">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-brand">
+            <a href="#" class="brand-logo">
+                <div class="brand-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-name">S <span>P</span></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="sidebar-user">
+            <div class="user-avatar">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+            <div class="user-name">{{ profile.company_name }}</div>
+            <div class="user-dept">{{ profile.industry }}</div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-label">Main</div>
+            <a href="{% url 'company_dashboard' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'company_dashboard' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <rect x="3" y="14" width="7" height="7" />
+                </svg>
+                Dashboard
+            </a>
+            <a href="{% url 'post_listing' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'post_listing' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Post a Listing
+            </a>
+
+            <div class="nav-label">Manage</div>
+            <a href="{% url 'company_profile' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'company_profile' %}active{% endif %}">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                </svg>
+                Company Profile
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <a href="{% url 'logout' %}" class="nav-item" style="color:#dc2626;">
+                <svg viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <div class="main">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24">
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <line x1="3" y1="18" x2="21" y2="18" />
+                    </svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Company Dashboard</h5>
+                    <p class="mb-0">{{ profile.company_name }} &mdash; {{ profile.industry }}</p>
+                </div>
+            </div>
+            {% if profile.is_verified %}
+            <a href="{% url 'post_listing' %}" class="btn-primary-sm d-flex align-items-center gp-1">
+                <svg style="width : 30px; height : 30px;" viewBox="0 0 24 24" stroke = "white">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Post Listing
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Content -->
+        <div class="content">
+
+            <!-- Verification Banner -->
+            {% if not profile.is_verified %}
+            <div class="alert-banner {% if profile.status == 'pending' %}warning{% elif profile.status == 'rejected' %}danger{% endif %}">
+                <div class="alert-text">
+                    {% if profile.status == 'pending' %}
+                        ⏳ <strong>Awaiting Verification.</strong> Your account is under admin review. You can post listings once verified.
+                    {% elif profile.status == 'rejected' %}
+                        ❌ <strong>Account Rejected.</strong> Your registration was not approved. Contact the admin.
+                    {% endif %}
+                </div>
+            </div>
+            {% else %}
+            <div class="alert-banner success">
+                <div class="alert-text">✅ <strong>Verified Company.</strong> Your account is active and visible to students.</div>
+            </div>
+            {% endif %}
+
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card blue">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+                    <div class="stat-value">{{ total_listings }}</div>
+                    <div class="stat-label">Total Listings</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+                    <div class="stat-value">{{ active_listings }}</div>
+                    <div class="stat-label">Active Listings</div>
+                </div>
+                <div class="stat-card teal">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                    <div class="stat-value">{{ total_applications }}</div>
+                    <div class="stat-label">Total Applications</div>
+                </div>
+                <div class="stat-card amber">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                    <div class="stat-value">{{ pending_apps }}</div>
+                    <div class="stat-label">Pending Review</div>
+                </div>
+                <div class="stat-card green">
+                    <div class="stat-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div class="stat-value">{{ accepted_apps }}</div>
+                    <div class="stat-label">Accepted</div>
+                </div>
+            </div>
+
+            <!-- Listings Table -->
+            <div class="section-header">
+                <div class="section-title">My Listings</div>
+            </div>
+
+            <div class="table-card">
+                {% if listings %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Department</th>
+                            <th>Location</th>
+                            <th>Slots</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th>Applications</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for listing in listings %}
+                        <tr>
+                            <td style="font-weight:600;">{{ listing.title }}</td>
+                            <td style="color:var(--text-muted); font-size:13px;">{{ listing.department_required }}</td>
+                            <td style="color:var(--text-muted); font-size:13px;">📍 {{ listing.lga }}, {{ listing.state }}</td>
+                            <td>{{ listing.slots_available }}</td>
+                            <td style="color:var(--text-muted); font-size:13px;">{{ listing.deadline|date:"d M Y"|default:"—" }}</td>
+                            <td>
+                                {% if listing.is_active %}
+                                    <span class="badge-active">Active</span>
+                                {% else %}
+                                    <span class="badge-inactive">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'listing_applications' listing.id %}" class="btn-ghost">
+                                    View ({{ listing.applications.count }})
+                                </a>
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                                    <a href="{% url 'edit_listing' listing.id %}" class="btn-ghost">
+                                        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                        Edit
+                                    </a>
+                                    <a href="{% url 'toggle_listing' listing.id %}" class="btn-ghost">
+                                        {% if listing.is_active %}Deactivate{% else %}Activate{% endif %}
+                                    </a>
+                                    <form method="POST" action="{% url 'delete_listing' listing.id %}" onsubmit="return confirm('Delete this listing? This cannot be undone.')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-danger-sm">
+                                            <svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <h6>No listings yet</h6>
+                    <p>{% if profile.is_verified %}Post your first placement listing.{% else %}You can post listings after your account is verified.{% endif %}</p>
+                    {% if profile.is_verified %}
+                    <a href="{% url 'post_listing' %}" class="btn-primary-sm">Post First Listing</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleSidebar() {
+        document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    // close sidebar when clicking outside on mobile
+    document.addEventListener('click', function (e) {
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.querySelector('.sidebar-toggle');
+        if (window.innerWidth <= 768 &&
+            !sidebar.contains(e.target) &&
+            !toggle.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    });
+</script>
+
+{% endblock %}

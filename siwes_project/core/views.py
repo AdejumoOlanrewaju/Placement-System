@@ -14,16 +14,13 @@ from django.contrib import messages
 # from urllib3 import request
 from .forms import AdminRegisterCompanyForm, StudentRegistrationForm, CompanyRegistrationForm, LoginForm, ApplicationForm, PlacementListingForm
 from .models import LGA, AIRecommendation, StudentProfile, PlacementListing, Application, State, CompanyProfile, User
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from .ai import generate_recommendations
 
 from .sms import notify_student_status_change, notify_admin_offer_accepted, notify_company_offer_response
-from django.http import HttpResponse
 
 from django.views.decorators.csrf import csrf_exempt
 from django.core.management import call_command
-
-
 
 # ─────────────────────────────────────────
 # HELPER — generate random password
@@ -39,91 +36,179 @@ def generate_password_name(company_name):
     return f"{first_word}@{number}"
 
 
-
-@csrf_exempt
 def setup_view(request):
-    from core.models import User, State
+    from core.models import User, State, CompanyProfile
 
-    step = request.POST.get('step', '')
+    admin_exists    = User.objects.filter(role='admin').exists()
+    states_exist    = State.objects.exists()
+    companies_exist = CompanyProfile.objects.exists()
 
-    # already fully set up
-    if User.objects.filter(role='admin').exists() and step == '':
+    # only block if everything is already set up
+    if admin_exists and states_exist and companies_exist:
         return HttpResponse("""
-            <!DOCTYPE html><html><body style='font-family:sans-serif;max-width:500px;margin:100px auto;padding:20px;'>
-            <h2 style='color:green;'>✅ System Already Set Up</h2>
-            <a href='/login/'>Go to Login →</a>
+            <!DOCTYPE html><html><body style='font-family:sans-serif;
+            max-width:500px;margin:100px auto;padding:20px;text-align:center;'>
+            <h2 style='color:#16a34a;'>✅ Already Set Up</h2>
+            <p style='color:#64748b;'>The system has already been initialized.</p>
+            <a href='/login/' style='display:inline-block;margin-top:16px;
+            background:#2563eb;color:#fff;padding:12px 28px;border-radius:8px;
+            text-decoration:none;font-weight:600;'>Go to Login →</a>
             </body></html>
         """)
+    return render(request, 'setup.html')
 
-    if request.method == 'POST':
+# ─────────────────────────────────────────
+# STEP 1 — MIGRATE
+# ─────────────────────────────────────────
+@csrf_exempt
+def setup_migrate(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+    try:
+        call_command('migrate', '--run-syncdb', verbosity=0)
+        return JsonResponse({
+            'success': True,
+            'message': 'Migrations complete. All tables are ready.'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-        if step == 'migrate':
-            call_command('migrate', '--run-syncdb')
-            return HttpResponse(page('Step 1 Done — Migrations complete', 'seed_nigeria', 'Seed Nigeria States & LGAs'))
+# ─────────────────────────────────────────
+# STEP 2 — SEED NIGERIA (batched, safe)
+# ─────────────────────────────────────────
+@csrf_exempt
+def setup_seed_nigeria(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
 
-        elif step == 'seed_nigeria':
-            call_command('seed_nigeria')
-            return HttpResponse(page('Step 2 Done — Nigeria data seeded', 'seed_companies', 'Seed Companies'))
+    existing_states = State.objects.count()
+    if existing_states >= 36:
+        return JsonResponse({
+            'success': True,
+            'message': f'Nigeria data already present — {existing_states} states found. Skipped.'
+        })
 
-        elif step == 'seed_companies':
-            call_command('seed_companies')
-            return HttpResponse(page('Step 3 Done — Companies seeded', 'create_admin', 'Create Admin Account'))
+    NIGERIA_DATA = {
+        "Abia"       : ["Aba North","Aba South","Arochukwu","Bende","Ikwuano","Isiala Ngwa North","Isiala Ngwa South","Isuikwuato","Obi Ngwa","Ohafia","Osisioma","Ugwunagbo","Ukwa East","Ukwa West","Umuahia North","Umuahia South","Umu Nneochi"],
+        "Adamawa"    : ["Demsa","Fufure","Ganye","Gayuk","Gombi","Grie","Hong","Jada","Lamurde","Madagali","Maiha","Mayo Belwa","Michika","Mubi North","Mubi South","Numan","Shelleng","Song","Toungo","Yola North","Yola South"],
+        "Akwa Ibom"  : ["Abak","Eastern Obolo","Eket","Esit Eket","Essien Udim","Etim Ekpo","Etinan","Ibeno","Ibesikpo Asutan","Ibiono-Ibom","Ika","Ikono","Ikot Abasi","Ikot Ekpene","Ini","Itu","Mbo","Mkpat-Enin","Nsit-Atai","Nsit-Ibom","Nsit-Ubium","Obot Akara","Okobo","Onna","Oron","Oruk Anam","Udung-Uko","Ukanafun","Uruan","Urue-Offong/Oruko","Uyo"],
+        "Anambra"    : ["Aguata","Anambra East","Anambra West","Anaocha","Awka North","Awka South","Ayamelum","Dunukofia","Ekwusigo","Idemili North","Idemili South","Ihiala","Njikoka","Nnewi North","Nnewi South","Ogbaru","Onitsha North","Onitsha South","Orumba North","Orumba South","Oyi"],
+        "Bauchi"     : ["Alkaleri","Bauchi","Bogoro","Damban","Darazo","Dass","Gamawa","Ganjuwa","Giade","Itas/Gadau","Jama'are","Katagum","Kirfi","Misau","Ningi","Shira","Tafawa Balewa","Toro","Warji","Zaki"],
+        "Bayelsa"    : ["Brass","Ekeremor","Kolokuma/Opokuma","Nembe","Ogbia","Sagbama","Southern Ijaw","Yenagoa"],
+        "Benue"      : ["Ado","Agatu","Apa","Buruku","Gboko","Guma","Gwer East","Gwer West","Katsina-Ala","Konshisha","Kwande","Logo","Makurdi","Obi","Ogbadibo","Ohimini","Oju","Okpokwu","Otukpo","Tarka","Ukum","Ushongo","Vandeikya"],
+        "Borno"      : ["Abadam","Askira/Uba","Bama","Bayo","Biu","Chibok","Damboa","Dikwa","Gubio","Guzamala","Gwoza","Hawul","Jere","Kaga","Kala/Balge","Konduga","Kukawa","Kwaya Kusar","Mafa","Magumeri","Maiduguri","Marte","Mobbar","Monguno","Ngala","Nganzai","Shani"],
+        "Cross River": ["Abi","Akamkpa","Akpabuyo","Bakassi","Bekwarra","Biase","Boki","Calabar Municipal","Calabar South","Etung","Ikom","Obanliku","Obubra","Obudu","Odukpani","Ogoja","Yakuur","Yala"],
+        "Delta"      : ["Aniocha North","Aniocha South","Bomadi","Burutu","Ethiope East","Ethiope West","Ika North East","Ika South","Isoko North","Isoko South","Ndokwa East","Ndokwa West","Okpe","Oshimili North","Oshimili South","Patani","Sapele","Udu","Ughelli North","Ughelli South","Ukwuani","Uvwie","Warri North","Warri South","Warri South West"],
+        "Ebonyi"     : ["Abakaliki","Afikpo North","Afikpo South","Ezza North","Ezza South","Ikwo","Ishielu","Ivo","Izzi","Ohaozara","Ohaukwu","Onicha"],
+        "Edo"        : ["Akoko-Edo","Egor","Esan Central","Esan North East","Esan South East","Esan West","Etsako Central","Etsako East","Etsako West","Igueben","Ikpoba-Okha","Orhionmwon","Oredo","Ovia North East","Ovia South West","Owan East","Owan West","Uhunmwonde"],
+        "Ekiti"      : ["Ado Ekiti","Efon","Ekiti East","Ekiti South West","Ekiti West","Emure","Gbonyin","Ido/Osi","Ijero","Ikere","Ikole","Ilejemeje","Irepodun/Ifelodun","Ise/Orun","Moba","Oye"],
+        "Enugu"      : ["Aninri","Awgu","Enugu East","Enugu North","Enugu South","Ezeagu","Igbo Etiti","Igbo Eze North","Igbo Eze South","Isi Uzo","Nkanu East","Nkanu West","Nsukka","Oji River","Udenu","Udi","Uzo Uwani"],
+        "Abuja (FCT)": ["Abaji","Abuja Municipal","Bwari","Gwagwalada","Kuje","Kwali"],
+        "Gombe"      : ["Akko","Balanga","Billiri","Dukku","Funakaye","Gombe","Kaltungo","Kwami","Nafada","Shomgom","Yamaltu/Deba"],
+        "Imo"        : ["Aboh Mbaise","Ahiazu Mbaise","Ehime Mbano","Ezinihitte","Ideato North","Ideato South","Ihitte/Uboma","Ikeduru","Isiala Mbano","Isu","Mbaitoli","Ngor Okpala","Njaba","Nkwerre","Nwangele","Obowo","Oguta","Ohaji/Egbema","Okigwe","Onuimo","Orlu","Orsu","Oru East","Oru West","Owerri Municipal","Owerri North","Owerri West"],
+        "Jigawa"     : ["Auyo","Babura","Biriniwa","Birnin Kudu","Buji","Dutse","Gagarawa","Garki","Gumel","Guri","Gwaram","Gwiwa","Hadejia","Jahun","Kafin Hausa","Kaugama","Kazaure","Kiri Kasama","Kiyawa","Maigatari","Malam Madori","Miga","Ringim","Roni","Sule Tankarkar","Taura","Yankwashi"],
+        "Kaduna"     : ["Birnin Gwari","Chikun","Giwa","Igabi","Ikara","Jaba","Jema'a","Kachia","Kaduna North","Kaduna South","Kagarko","Kajuru","Kaura","Kauru","Kubau","Kudan","Lere","Makarfi","Sabon Gari","Sanga","Soba","Zangon Kataf","Zaria"],
+        "Kano"       : ["Ajingi","Albasu","Bagwai","Bebeji","Bichi","Bunkure","Dala","Dambatta","Dawakin Kudu","Dawakin Tofa","Doguwa","Fagge","Gabasawa","Garko","Garun Mallam","Gaya","Gezawa","Gwale","Gwarzo","Kabo","Kano Municipal","Karaye","Kibiya","Kiru","Kumbotso","Kunchi","Kura","Madobi","Makoda","Minjibir","Nasarawa","Rano","Rimin Gado","Rogo","Shanono","Sumaila","Takai","Tarauni","Tofa","Tsanyawa","Tudun Wada","Ungogo","Warawa","Wudil"],
+        "Katsina"    : ["Bakori","Batagarawa","Batsari","Baure","Bindawa","Charanchi","Dan Musa","Dandume","Danja","Daura","Dutsi","Dutsin Ma","Faskari","Funtua","Ingawa","Jibia","Kafur","Kaita","Kankara","Kankia","Katsina","Kurfi","Kusada","Mai'Adua","Malumfashi","Mani","Mashi","Matazu","Musawa","Rimi","Sabuwa","Safana","Sandamu","Zango"],
+        "Kebbi"      : ["Aleiro","Arewa Dandi","Argungu","Augie","Bagudo","Birnin Kebbi","Bunza","Dandi","Fakai","Gwandu","Jega","Kalgo","Koko/Besse","Maiyama","Ngaski","Sakaba","Shanga","Suru","Wasagu/Danko","Yauri","Zuru"],
+        "Kogi"       : ["Adavi","Ajaokuta","Ankpa","Bassa","Dekina","Ibaji","Idah","Igalamela-Odolu","Ijumu","Kabba/Bunu","Kogi","Lokoja","Mopa-Muro","Ofu","Ogori/Magongo","Okehi","Okene","Olamaboro","Omala","Yagba East","Yagba West"],
+        "Kwara"      : ["Asa","Baruten","Edu","Ekiti","Ifelodun","Ilorin East","Ilorin South","Ilorin West","Irepodun","Isin","Kaiama","Moro","Offa","Oke Ero","Oyun","Pategi"],
+        "Lagos"      : ["Agege","Ajeromi-Ifelodun","Alimosho","Amuwo-Odofin","Apapa","Badagry","Epe","Eti-Osa","Ibeju-Lekki","Ifako-Ijaiye","Ikeja","Ikorodu","Kosofe","Lagos Island","Lagos Mainland","Mushin","Ojo","Oshodi-Isolo","Shomolu","Surulere"],
+        "Nasarawa"   : ["Akwanga","Awe","Doma","Karu","Keana","Keffi","Kokona","Lafia","Nasarawa","Nasarawa Egon","Obi","Toto","Wamba"],
+        "Niger"      : ["Agaie","Agwara","Bida","Borgu","Bosso","Chanchaga","Edati","Gbako","Gurara","Katcha","Kontagora","Lapai","Lavun","Magama","Mariga","Mashegu","Mokwa","Moya","Paikoro","Rafi","Rijau","Shiroro","Suleja","Tafa","Wushishi"],
+        "Ogun"       : ["Abeokuta North","Abeokuta South","Ado-Odo/Ota","Egbado North","Egbado South","Ewekoro","Ifo","Ijebu East","Ijebu North","Ijebu North East","Ijebu Ode","Ikenne","Imeko Afon","Ipokia","Obafemi Owode","Odeda","Odogbolu","Ogun Waterside","Remo North","Shagamu"],
+        "Ondo"       : ["Akoko North East","Akoko North West","Akoko South Akure","Akoko South West","Akure North","Akure South","Ese Odo","Idanre","Ifedore","Ilaje","Ile Oluji/Okeigbo","Irele","Odigbo","Okitipupa","Ondo East","Ondo West","Ose","Owo"],
+        "Osun"       : ["Atakumosa East","Atakumosa West","Ayedaade","Ayedire","Boluwaduro","Boripe","Ede North","Ede South","Egbedore","Ejigbo","Ife Central","Ife East","Ife North","Ife South","Ifedayo","Ifelodun","Ila","Ilesa East","Ilesa West","Irepodun","Irewole","Isokan","Iwo","Obokun","Odo Otin","Ola Oluwa","Olorunda","Oriade","Orolu","Osogbo"],
+        "Oyo"        : ["Afijio","Akinyele","Atiba","Atisbo","Egbeda","Ibadan North","Ibadan North East","Ibadan North West","Ibadan South East","Ibadan South West","Ibarapa Central","Ibarapa East","Ibarapa North","Ido","Irepo","Iseyin","Itesiwaju","Iwajowa","Kajola","Lagelu","Ogbomosho North","Ogbomosho South","Ogo Oluwa","Olorunsogo","Oluyole","Ona Ara","Orelope","Ori Ire","Oyo East","Oyo West","Saki East","Saki West","Surulere"],
+        "Plateau"    : ["Barkin Ladi","Bassa","Bokkos","Jos East","Jos North","Jos South","Kanam","Kanke","Langtang North","Langtang South","Mangu","Mikang","Pankshin","Qua'an Pan","Riyom","Shendam","Wase"],
+        "Rivers"     : ["Abua/Odual","Ahoada East","Ahoada West","Akuku-Toru","Andoni","Asari-Toru","Bonny","Degema","Eleme","Emohua","Etche","Gokana","Ikwerre","Khana","Obio/Akpor","Ogba/Egbema/Ndoni","Ogu/Bolo","Okrika","Omuma","Opobo/Nkoro","Oyigbo","Port Harcourt","Tai"],
+        "Sokoto"     : ["Binji","Bodinga","Dange Shuni","Gada","Goronyo","Gudu","Gwadabawa","Illela","Isa","Kebbe","Kware","Rabah","Sabon Birni","Shagari","Silame","Sokoto North","Sokoto South","Tambuwal","Tangaza","Tureta","Wamako","Wurno","Yabo"],
+        "Taraba"     : ["Ardo Kola","Bali","Donga","Gashaka","Gassol","Ibi","Jalingo","Karim Lamido","Kumi","Lau","Sardauna","Takum","Ussa","Wukari","Yorro","Zing"],
+        "Yobe"       : ["Bade","Bursari","Damaturu","Fika","Fune","Geidam","Gujba","Gulani","Jakusko","Karasuwa","Machina","Nangere","Nguru","Potiskum","Tarmuwa","Yunusari","Yusufari"],
+        "Zamfara"    : ["Anka","Bakura","Birnin Magaji/Kiyaw","Bukkuyum","Bungudu","Gummi","Gusau","Kaura Namoda","Maradun","Maru","Shinkafi","Talata Mafara","Tsafe","Zurmi"],
+    }
 
-        elif step == 'create_admin':
-            if not User.objects.filter(role='admin').exists():
-                User.objects.create_superuser(
-                    username   = 'admin',
-                    email      = 'admin@siwes.com',
-                    password   = 'admin2024',
-                    first_name = 'System',
-                    last_name  = 'Admin',
-                    role       = 'admin',
-                )
-            return HttpResponse("""
-                <!DOCTYPE html><html><body style='font-family:sans-serif;max-width:500px;margin:100px auto;padding:20px;'>
-                <h2 style='color:green;'>✅ Setup Complete!</h2>
-                <p><strong>Admin credentials:</strong></p>
-                <p>Username: <strong>admin</strong></p>
-                <p>Password: <strong>admin2024</strong></p>
-                <br>
-                <a href='/login/' style='background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;'>
-                    Go to Login →
-                </a>
-                </body></html>
-            """)
+    try:
+        new_states = 0
+        new_lgas   = 0
 
-    # initial page
-    return HttpResponse(page('SIWES System Setup', 'migrate', 'Step 1 — Run Migrations'))
+        for state_name, lgas in NIGERIA_DATA.items():
+            state, state_created = State.objects.get_or_create(name=state_name)
+            if state_created:
+                new_states += 1
+            for lga_name in lgas:
+                _, lga_created = LGA.objects.get_or_create(state=state, name=lga_name)
+                if lga_created:
+                    new_lgas += 1
 
+        if new_states == 0 and new_lgas == 0:
+            return JsonResponse({
+                'success': True,
+                'message': 'Nigeria data already fully seeded. Nothing to add.'
+            })
 
-def page(title, next_step, button_text):
-    return f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>SIWES Setup</title>
-            <style>
-                body {{ font-family: sans-serif; max-width: 500px; margin: 100px auto; padding: 20px; }}
-                h2 {{ color: #0f172a; }}
-                p {{ color: #64748b; }}
-                button {{
-                    background: #2563eb; color: #fff; border: none;
-                    padding: 12px 28px; border-radius: 8px;
-                    font-size: 15px; cursor: pointer; margin-top: 16px;
-                }}
-                button:hover {{ background: #1d4ed8; }}
-                .done {{ color: green; font-weight: bold; }}
-            </style>
-        </head>
-        <body>
-            <h2>{title}</h2>
-            <form method='POST' action='/setup/'>
-                <input type='hidden' name='step' value='{next_step}'>
-                <button type='submit'>{button_text}</button>
-            </form>
-        </body>
-        </html>
-    """
+        return JsonResponse({
+            'success': True,
+            'message': f'Seeded {new_states} new states and {new_lgas} new LGAs.'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+# ─────────────────────────────────────────
+# STEP 3 — SEED COMPANIES
+# ─────────────────────────────────────────
+@csrf_exempt
+def setup_seed_companies(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    existing = CompanyProfile.objects.count()
+
+    if existing >= 10:
+        return JsonResponse({
+            'success': True,
+            'message': f'{existing} companies already present. Skipped.'
+        })
+
+    try:
+        call_command('seed_companies', verbosity=0)
+        new_count = CompanyProfile.objects.count() - existing
+        return JsonResponse({
+            'success': True,
+            'message': f'{new_count} companies seeded successfully.'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+# ─────────────────────────────────────────
+# STEP 4 — CREATE ADMIN
+# ─────────────────────────────────────────
+@csrf_exempt
+def setup_create_admin(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=405)
+
+    if User.objects.filter(role='admin').exists():
+        return JsonResponse({
+            'success': True,
+            'message': 'Admin account already exists. Skipped.'
+        })
+
+    try:
+        User.objects.create_superuser(
+            username   = 'admin',
+            email      = 'admin@siwes.com',
+            password   = 'admin2026',
+            first_name = 'System',
+            last_name  = 'Admin',
+            role       = 'admin',
+        )
+        return JsonResponse({
+            'success': True,
+            'message': 'Admin created. Username: admin | Password: admin2026'
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 # ─────────────────────────────────────────
 # REGISTER — STUDENT

@@ -43,5 +43,9 @@ urlpatterns = [
     path('admin-panel/admins/<int:admin_id>/delete/',        views.delete_admin,           name='delete_admin'),
     path('admin-panel/admins/<int:admin_id>/change-password/', views.change_admin_password, name='change_admin_password'),
 
-    path('setup/', views.setup_view, name = "setup")
+    path('setup/',                views.setup_view,          name='setup'),
+    path('setup/migrate/',        views.setup_migrate,       name='setup_migrate'),
+    path('setup/seed-nigeria/',   views.setup_seed_nigeria,  name='setup_seed_nigeria'),
+    path('setup/seed-companies/', views.setup_seed_companies,name='setup_seed_companies'),
+    path('setup/create-admin/',   views.setup_create_admin,  name='setup_create_admin'),
 ]

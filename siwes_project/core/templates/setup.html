@@ -1,20 +1,535 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>SIWES Setup</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIWES System Setup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; max-width: 500px; margin: 100px auto; padding: 20px; }
-        button { background: #2563eb; color: #fff; border: none; padding: 12px 24px; border-radius: 8px; font-size: 15px; cursor: pointer; }
-        button:hover { background: #1d4ed8; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #eff6ff;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --bg: #f1f5f9;
+            --surface: #ffffff;
+            --radius: 14px;
+            --radius-sm: 8px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .setup-wrap {
+            width: 100%;
+            max-width: 560px;
+        }
+
+        /* Brand */
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .brand-icon {
+            width: 44px; height: 44px;
+            background: var(--primary);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .brand-icon svg {
+            width: 24px; height: 24px;
+            fill: none; stroke: #fff;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .brand-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text);
+        }
+
+        .brand-name span { color: var(--primary); }
+
+        /* Card */
+        .card {
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 32px rgba(0,0,0,.06);
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 28px 32px 24px;
+            border-bottom: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .card-header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .card-header p {
+            font-size: 13.5px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .card-body { padding: 28px 32px; }
+
+        /* Steps */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            transition: all .2s;
+        }
+
+        .step.active {
+            border-color: #bfdbfe;
+            background: var(--primary-light);
+        }
+
+        .step.done {
+            border-color: #bbf7d0;
+            background: var(--success-light);
+        }
+
+        .step.error {
+            border-color: #fecaca;
+            background: var(--danger-light);
+        }
+
+        .step-num {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text-muted);
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 800;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0;
+            transition: all .2s;
+        }
+
+        .step.active .step-num {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .step.done .step-num {
+            background: var(--success);
+            color: #fff;
+        }
+
+        .step.error .step-num {
+            background: var(--danger);
+            color: #fff;
+        }
+
+        .step-info { flex: 1; }
+
+        .step-title {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 2px;
+        }
+
+        .step.active .step-title { color: var(--primary); }
+        .step.done .step-title   { color: var(--success); }
+        .step.error .step-title  { color: var(--danger); }
+
+        .step-desc {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .step-status {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        /* Spinner */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2.5px solid #bfdbfe;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+            flex-shrink: 0;
+        }
+
+        .spinner.green {
+            border-color: #bbf7d0;
+            border-top-color: var(--success);
+        }
+
+        /* Button */
+        .btn-start {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 700;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background .18s;
+        }
+
+        .btn-start:hover:not(:disabled) { background: var(--primary-dark); }
+        .btn-start:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .btn-start svg {
+            width: 18px; height: 18px;
+            stroke: #fff; fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Log */
+        .log {
+            background: #0f172a;
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            margin-top: 16px;
+            font-size: 12px;
+            color: #94a3b8;
+            font-family: monospace;
+            line-height: 1.8;
+            max-height: 140px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .log.show { display: block; }
+        .log .ok   { color: #4ade80; }
+        .log .err  { color: #f87171; }
+        .log .info { color: #60a5fa; }
+
+        /* Success */
+        .success-box {
+            text-align: center;
+            padding: 20px 0 8px;
+            display: none;
+        }
+
+        .success-box.show { display: block; }
+
+        .success-icon {
+            width: 64px; height: 64px;
+            background: var(--success-light);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .success-icon svg {
+            width: 28px; height: 28px;
+            stroke: var(--success); fill: none;
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .success-box h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .success-box p {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .creds {
+            background: var(--primary-light);
+            border: 1px solid #bfdbfe;
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            margin: 16px 0;
+            text-align: left;
+        }
+
+        .creds p {
+            font-size: 13px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .creds strong { color: var(--primary); }
+
+        .btn-login {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            margin-top: 8px;
+            transition: background .18s;
+        }
+
+        .btn-login:hover { background: var(--primary-dark); }
+
+        .btn-login svg {
+            width: 15px; height: 15px;
+            stroke: #fff; fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .warning-note {
+            background: var(--warning-light);
+            border: 1px solid #fde68a;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-bottom: 20px;
+            font-size: 12.5px;
+            color: var(--warning);
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
-    <h2>SIWES System Setup</h2>
-    <p>This will run migrations, seed Nigeria data, seed companies, and create the admin account.</p>
-    <p><strong>Only run this once.</strong></p>
-    <form method="POST">
-        {% csrf_token %}
-        <button type="submit">Run Setup</button>
-    </form>
+
+<div class="setup-wrap">
+
+    <!-- Brand -->
+    <div class="brand">
+        <div class="brand-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div class="brand-name">SIWES <span>Portal</span></div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h1>System Initialization</h1>
+            <p>This will set up the database, seed all 36 Nigerian states and LGAs, load demo companies, and create the administrator account. Click the button below to begin.</p>
+        </div>
+
+        <div class="card-body">
+
+            <div class="warning-note">
+                ⚠️ Run this only once. The page will automatically disable itself after setup is complete.
+            </div>
+
+            <!-- Steps -->
+            <div class="steps">
+                <div class="step" id="step-1">
+                    <div class="step-num">1</div>
+                    <div class="step-info">
+                        <div class="step-title">Run Database Migrations</div>
+                        <div class="step-desc">Creates all required database tables</div>
+                    </div>
+                    <div class="step-status" id="status-1">—</div>
+                </div>
+                <div class="step" id="step-2">
+                    <div class="step-num">2</div>
+                    <div class="step-info">
+                        <div class="step-title">Seed Nigeria States & LGAs</div>
+                        <div class="step-desc">Loads all 36 states and 774 LGAs</div>
+                    </div>
+                    <div class="step-status" id="status-2">—</div>
+                </div>
+                <div class="step" id="step-3">
+                    <div class="step-num">3</div>
+                    <div class="step-info">
+                        <div class="step-title">Seed Demo Companies</div>
+                        <div class="step-desc">Creates sample verified company accounts</div>
+                    </div>
+                    <div class="step-status" id="status-3">—</div>
+                </div>
+                <div class="step" id="step-4">
+                    <div class="step-num">4</div>
+                    <div class="step-info">
+                        <div class="step-title">Create Administrator Account</div>
+                        <div class="step-desc">Sets up the system admin login</div>
+                    </div>
+                    <div class="step-status" id="status-4">—</div>
+                </div>
+            </div>
+
+            <!-- Start Button -->
+            <button class="btn-start" id="startBtn" onclick="runSetup()">
+                <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                Start Setup
+            </button>
+
+            <!-- Log -->
+            <div class="log" id="log"></div>
+
+            <!-- Success -->
+            <div class="success-box" id="successBox">
+                <div class="success-icon">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <h3>Setup Complete!</h3>
+                <p>Your SIWES Placement System is ready to use.</p>
+                <div class="creds">
+                    <p>👤 Username: <strong>admin</strong></p>
+                    <p>🔑 Password: <strong>admin2024</strong></p>
+                    <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">
+                        Please change the admin password after your first login.
+                    </p>
+                </div>
+                <a href="/login/" class="btn-login">
+                    Go to Login
+                    <svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+const STEPS = [
+    { id: 1, url: '/setup/migrate/',        label: 'Running migrations...'          },
+    { id: 2, url: '/setup/seed-nigeria/',   label: 'Seeding Nigeria data...'        },
+    { id: 3, url: '/setup/seed-companies/', label: 'Seeding demo companies...'      },
+    { id: 4, url: '/setup/create-admin/',   label: 'Creating admin account...'      },
+];
+
+function log(msg, type = 'info') {
+    const el = document.getElementById('log');
+    el.classList.add('show');
+    el.innerHTML += `<div class="${type}">› ${msg}</div>`;
+    el.scrollTop = el.scrollHeight;
+}
+
+function setStepState(id, state) {
+    const step   = document.getElementById(`step-${id}`);
+    const status = document.getElementById(`status-${id}`);
+
+    step.className = `step ${state}`;
+
+    if (state === 'active') {
+        status.innerHTML = `<div class="spinner"></div>`;
+    } else if (state === 'done') {
+        status.innerHTML = '✅';
+    } else if (state === 'error') {
+        status.innerHTML = '❌';
+    } else {
+        status.innerHTML = '—';
+    }
+}
+
+async function runSetup() {
+    const btn = document.getElementById('startBtn');
+    btn.disabled = true;
+    btn.innerHTML = `
+        <div class="spinner" style="border-color:rgba(255,255,255,.3);border-top-color:#fff;"></div>
+        Setting up...
+    `;
+
+    log('Starting SIWES system setup...', 'info');
+
+    for (const step of STEPS) {
+        setStepState(step.id, 'active');
+        log(step.label, 'info');
+
+        try {
+            const res  = await fetch(step.url, { method: 'POST' });
+            const data = await res.json();
+
+            if (data.success) {
+                setStepState(step.id, 'done');
+                log(data.message, 'ok');
+            } else {
+                setStepState(step.id, 'error');
+                log(`Error: ${data.error}`, 'err');
+                btn.disabled = false;
+                btn.innerHTML = `
+                    <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.56"/>
+                    </svg>
+                    Retry
+                `;
+                return;
+            }
+        } catch (err) {
+            setStepState(step.id, 'error');
+            log(`Network error: ${err.message}`, 'err');
+            btn.disabled = false;
+            btn.innerHTML = 'Retry';
+            return;
+        }
+    }
+
+    // all done
+    log('All steps completed successfully!', 'ok');
+    btn.style.display = 'none';
+    document.getElementById('successBox').classList.add('show');
+}
+</script>
+
 </body>
 </html>

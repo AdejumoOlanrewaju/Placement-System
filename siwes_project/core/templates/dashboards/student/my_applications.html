@@ -100,9 +100,9 @@
                 </div>
             </div>
             <a href="{% url 'search_placements' %}"
-               style="background:var(--primary);color:#fff;border:none;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .18s;"
+               style="background:var(--primary-clr);color:#fff;border:none;padding:9px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;font-family:'Plus Jakarta Sans',sans-serif;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .18s;"
                onmouseover="this.style.background='var(--primary-dark)'"
-               onmouseout="this.style.background='var(--primary)'">
+               onmouseout="this.style.background='var(--primary-clr)'">
                 + Find More
             </a>
         </div>
@@ -161,7 +161,7 @@
                     <div style="display:flex;gap:14px;align-items:flex-start;">
 
                         <!-- Company Avatar -->
-                        <div style="width:46px;height:46px;border-radius:12px;background:var(--primary-light);color:var(--primary);font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <div style="width:46px;height:46px;border-radius:12px;background:var(--primary-light);color:var(--primary-clr);font-family:'Plus Jakarta Sans',sans-serif;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                             {{ app.listing.company.company_name|first|upper }}
                         </div>
 
@@ -283,7 +283,7 @@
             {% else %}
             <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:70px 24px;text-align:center;box-shadow:var(--shadow);">
                 <div style="width:64px;height:64px;background:var(--primary-light);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary-clr)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                 </div>
                 <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:var(--text);margin-bottom:8px;">
                     {% if selected_status %}No applications with status "{{ selected_status }}"{% else %}No applications yet{% endif %}
@@ -293,7 +293,7 @@
                 </p>
                 {% if not selected_status %}
                 <a href="{% url 'search_placements' %}"
-                   style="display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;padding:10px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;text-decoration:none;">
+                   style="display:inline-flex;align-items:center;gap:6px;background:var(--primary-clr);color:#fff;padding:10px 24px;border-radius:var(--radius-sm);font-size:13px;font-weight:600;text-decoration:none;">
                     Find Placements
                 </a>
                 {% endif %}

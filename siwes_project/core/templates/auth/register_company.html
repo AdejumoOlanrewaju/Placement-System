@@ -83,17 +83,30 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label">Password</label>
-                                <input type="password" name="password1" class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="password1" class="form-control password-field" required>
+
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label">Confirm Password</label>
-                                <input type="password" name="password2" class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="password2" class="form-control password-field" required>
+
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <button type="submit" class="btn auth-submit-btn w-100">Register Company</button>
                     </form>
                 </div>
-                <p class="text-center mt-3">Already registered? <a class="login-link" href="{% url 'login' %}">Login</a></p>
+                <p class="text-center mt-3">Already registered? <a class="login-link" href="{% url 'login' %}">Login</a>
+                </p>
             </div>
 
         </div>

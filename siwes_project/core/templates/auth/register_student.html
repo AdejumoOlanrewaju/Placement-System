@@ -27,7 +27,7 @@
                         </div>
                         {% endif %}
                         <div class="row g-3">
-        
+
                             <div class="col-6">
                                 <label class="form-label">First Name</label>
                                 <input type="text" name="first_name" class="form-control" required>
@@ -61,7 +61,8 @@
                                 <input type="text" name="institution" class="form-control" required>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Skills <small class="text-muted">(single space-separated)</small></label>
+                                <label class="form-label">Skills <small class="text-muted">(single
+                                        space-separated)</small></label>
                                 <textarea name="skills" class="form-control" rows="2"></textarea>
                             </div>
                             <div class="col-6">
@@ -81,18 +82,31 @@
                             </div>
                             <div class="col-6">
                                 <label class="form-label">Password</label>
-                                <input type="password" name="password1" class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="password1" class="form-control password-field" required>
+
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="col-6">
                                 <label class="form-label">Confirm Password</label>
-                                <input type="password" name="password2" class="form-control" required>
+                                <div class="input-group">
+                                    <input type="password" name="password2" class="form-control password-field" required>
+
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-        
+
                         </div>
                         <button type="submit" class="btn btn-primary w-100  auth-submit-btn ">Create Account</button>
                     </form>
-        
-                    <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}" class="login-link">Login</a></p>
+
+                    <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}"
+                            class="login-link">Login</a></p>
                 </div>
             </div>
         </div>

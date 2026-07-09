@@ -24,13 +24,19 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <div class="input-group">
+                                <input type="password" name="password" class="form-control password-field" required>
+
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" class="btn w-100 auth-submit-btn">Login</button>
                         <div style="text-align:center;margin-top:14px;">
                             <a href="{% url 'password_reset' %}"
                                 style="font-size:13px;color:var(--text-muted);text-decoration:none;"
-                                onmouseover="this.style.color='var(--primary)'"
+                                onmouseover="this.style.color='var(--primary-clr)'"
                                 onmouseout="this.style.color='var(--text-muted)'">
                                 Forgot your password?
                             </a>

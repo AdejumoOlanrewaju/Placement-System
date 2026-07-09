@@ -20,6 +20,10 @@ from .ai import generate_recommendations
 from .sms import notify_student_status_change, notify_admin_offer_accepted, notify_company_offer_response
 from django.http import HttpResponse
 
+from django.views.decorators.csrf import csrf_exempt
+from django.core.management import call_command
+
+
 
 # ─────────────────────────────────────────
 # HELPER — generate random password
@@ -34,45 +38,92 @@ def generate_password_name(company_name):
     number     = str(secrets.randbelow(900) + 100)  # 100-999
     return f"{first_word}@{number}"
 
-from .sms import notify_student_status_change
 
 
+@csrf_exempt
 def setup_view(request):
-    from core.models import User
+    from core.models import User, State
 
-    if User.objects.filter(role='admin').exists():
-        return HttpResponse("System already set up. This page is disabled.", status=403)
+    step = request.POST.get('step', '')
 
-    if request.method == 'POST':
-        from django.core.management import call_command
-        print("Starting Nigeria seed...")
-        call_command("seed_nigeria")
-        print("Nigeria seed complete")
-
-        print("Starting company seed...")
-        call_command("seed_companies")
-        print("Company seed complete")
-
-        User.objects.create_superuser(
-            username   = 'admin',
-            email      = 'admin@siwes.com',
-            password   = 'admin2024',
-            first_name = 'System',
-            last_name  = 'Admin',
-            role       = 'admin',
-        )
-
+    # already fully set up
+    if User.objects.filter(role='admin').exists() and step == '':
         return HttpResponse("""
             <!DOCTYPE html><html><body style='font-family:sans-serif;max-width:500px;margin:100px auto;padding:20px;'>
-            <h2 style='color:green;'>✅ Setup Complete</h2>
-            <p><strong>Admin credentials:</strong></p>
-            <p>Username: <strong>admin</strong></p>
-            <p>Password: <strong>admin2024</strong></p>
-            <p><a href='/login/' style='color:#2563eb;'>Go to Login →</a></p>
+            <h2 style='color:green;'>✅ System Already Set Up</h2>
+            <a href='/login/'>Go to Login →</a>
             </body></html>
         """)
 
-    return render(request, 'setup.html')
+    if request.method == 'POST':
+
+        if step == 'migrate':
+            call_command('migrate', '--run-syncdb')
+            return HttpResponse(page('Step 1 Done — Migrations complete', 'seed_nigeria', 'Seed Nigeria States & LGAs'))
+
+        elif step == 'seed_nigeria':
+            call_command('seed_nigeria')
+            return HttpResponse(page('Step 2 Done — Nigeria data seeded', 'seed_companies', 'Seed Companies'))
+
+        elif step == 'seed_companies':
+            call_command('seed_companies')
+            return HttpResponse(page('Step 3 Done — Companies seeded', 'create_admin', 'Create Admin Account'))
+
+        elif step == 'create_admin':
+            if not User.objects.filter(role='admin').exists():
+                User.objects.create_superuser(
+                    username   = 'admin',
+                    email      = 'admin@siwes.com',
+                    password   = 'admin2024',
+                    first_name = 'System',
+                    last_name  = 'Admin',
+                    role       = 'admin',
+                )
+            return HttpResponse("""
+                <!DOCTYPE html><html><body style='font-family:sans-serif;max-width:500px;margin:100px auto;padding:20px;'>
+                <h2 style='color:green;'>✅ Setup Complete!</h2>
+                <p><strong>Admin credentials:</strong></p>
+                <p>Username: <strong>admin</strong></p>
+                <p>Password: <strong>admin2024</strong></p>
+                <br>
+                <a href='/login/' style='background:#2563eb;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;'>
+                    Go to Login →
+                </a>
+                </body></html>
+            """)
+
+    # initial page
+    return HttpResponse(page('SIWES System Setup', 'migrate', 'Step 1 — Run Migrations'))
+
+
+def page(title, next_step, button_text):
+    return f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>SIWES Setup</title>
+            <style>
+                body {{ font-family: sans-serif; max-width: 500px; margin: 100px auto; padding: 20px; }}
+                h2 {{ color: #0f172a; }}
+                p {{ color: #64748b; }}
+                button {{
+                    background: #2563eb; color: #fff; border: none;
+                    padding: 12px 28px; border-radius: 8px;
+                    font-size: 15px; cursor: pointer; margin-top: 16px;
+                }}
+                button:hover {{ background: #1d4ed8; }}
+                .done {{ color: green; font-weight: bold; }}
+            </style>
+        </head>
+        <body>
+            <h2>{title}</h2>
+            <form method='POST' action='/setup/'>
+                <input type='hidden' name='step' value='{next_step}'>
+                <button type='submit'>{button_text}</button>
+            </form>
+        </body>
+        </html>
+    """
 
 # ─────────────────────────────────────────
 # REGISTER — STUDENT

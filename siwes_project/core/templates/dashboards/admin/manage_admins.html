@@ -154,11 +154,11 @@
                             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
 
                                 <div style="display:flex;align-items:center;gap:12px;">
-                                    <div style="width:44px;height:44px;border-radius:50%;background:var(--primary-clr);color:#fff;font-family:'Syne',sans-serif;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <div style="width:44px;height:44px;border-radius:50%;background:var(--primary-clr);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                                         {{ admin.username|first|upper }}
                                     </div>
                                     <div>
-                                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);">
+                                        <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--text);">
                                             {{ admin.get_full_name|default:admin.username }}
                                             {% if admin.id == request.user.id %}
                                             <span style="font-size:11px;background:var(--primary-light);color:var(--primary);padding:2px 8px;border-radius:10px;margin-left:6px;font-weight:600;">You</span>

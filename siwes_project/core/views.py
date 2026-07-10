@@ -747,7 +747,7 @@ def update_application_status(request, app_id):
         new_status = request.POST.get('status')
         note       = request.POST.get('company_note', '')
 
-        if new_status in ['pending', 'reviewed', 'offered', 'accepted', 'rejected']:
+        if new_status in ['pending', 'reviewed', 'offered', 'rejected']:
             application.status = new_status
             application.company_note = note
             application.save()

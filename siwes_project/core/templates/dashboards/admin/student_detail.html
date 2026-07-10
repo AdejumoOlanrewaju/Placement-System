@@ -315,12 +315,9 @@
                             <tbody>
                                 {% for app in applications %}
                                 <tr style="border-bottom:1px solid var(--border);">
-                                    <td style="padding:13px 18px;font-size:13.5px;font-weight:600;">{{
-                                        app.listing.company.company_name }}</td>
-                                    <td style="padding:13px 18px;font-size:13px;color:var(--text-muted);">{{
-                                        app.listing.title }}</td>
-                                    <td style="padding:13px 18px;font-size:12px;color:var(--text-muted);">{{
-                                        app.applied_at|date:"d M Y" }}</td>
+                                    <td style="padding:13px 18px;font-size:13.5px;font-weight:600;">{{ app.listing.company.company_name }}</td>
+                                    <td style="padding:13px 18px;font-size:13px;color:var(--text-muted);">{{ app.listing.title }}</td>
+                                    <td style="padding:13px 18px;font-size:12px;color:var(--text-muted);">{{ app.applied_at|date:"d M Y" }}</td>
                                     <td style="padding:13px 18px;">
                                         {% if app.status == 'pending' %}
                                         <span class="badge badge-pending">Pending</span>
@@ -333,8 +330,8 @@
                                         <span class="badge badge-accepted">Offer Accepted</span>
                                         {% elif app.status == 'offer_declined' %}
                                         <span class="badge badge-rejected">Offer Declined</span>
-                                        {% elif app.status == 'accepted' %}
-                                        <span class="badge badge-accepted">Accepted</span>
+                                        <!-- {% elif app.status == 'accepted' %}
+                                        <span class="badge badge-accepted">Accepted</span> -->
                                         {% elif app.status == 'rejected' %}
                                         <span class="badge badge-rejected">Rejected</span>
                                         {% endif %}

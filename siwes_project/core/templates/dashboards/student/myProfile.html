@@ -102,26 +102,25 @@
                     <p class="mb-0">Manage and explore your student profile</p>
                 </div>
             </div>
-            <a href="{% url 'student_dashboard' %}" class="btn-back">
-                <svg viewBox="0 0 24 24">
-                    <polyline points="15 18 9 12 15 6" />
-                </svg>
-                Back to Dashboard
-            </a>
+            <div style="display:flex; align-items:center; gap:7px">
+                <a href="{% url 'edit_student_profile' %}" class="btn-primary-sm">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                    Edit Profile
+                </a>
+                <a href="{% url 'student_dashboard' %}" class="btn-back">
+                    <svg viewBox="0 0 24 24">
+                        <polyline points="15 18 9 12 15 6" />
+                    </svg>
+                    Back to Dashboard
+                </a>
+            </div>
         </div>
 
         <!-- Content -->
         <div class="content">
-
-            <!-- <div class="section-header" style="margin-bottom:28px;">
-                <div>
-                    <div class="section-title">My Profile</div>
-                    <p style="font-size:13px; color:var(--text-muted); margin-top:4px;">
-                        Manage your SIWES placement profile
-                    </p>
-                </div>
-            </div> -->
-
             <div class="profile-grid">
 
                 <!-- Left — Identity Card -->

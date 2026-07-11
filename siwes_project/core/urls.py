@@ -11,6 +11,7 @@ urlpatterns = [
     path('student/dashboard/',          views.student_dashboard,  name='student_dashboard'),
     path('student/search/',             views.search_placements,  name='search_placements'),
     path('student/profile/', views.my_profile, name='my_profile'),
+    path('student/profile/edit/',  views.edit_student_profile, name='edit_student_profile'),
     path('student/applications/', views.my_applications, name='my_applications'),
     path('student/apply/<int:listing_id>/', views.apply_placement, name='apply_placement'),
     path('student/recommendations/refresh/', views.refresh_recommendations, name='refresh_recommendations'),
@@ -18,6 +19,7 @@ urlpatterns = [
 
     path('company/dashboard/',                              views.company_dashboard,          name='company_dashboard'),
     path('company/profile/',                                views.company_profile,            name='company_profile'),
+    path('company/profile/edit/',  views.edit_company_profile, name='edit_company_profile'),
     path('company/post-listing/',                           views.post_listing,               name='post_listing'),
     path('company/listing/<int:listing_id>/edit/',          views.edit_listing,               name='edit_listing'),
     path('company/listing/<int:listing_id>/delete/',        views.delete_listing,             name='delete_listing'),

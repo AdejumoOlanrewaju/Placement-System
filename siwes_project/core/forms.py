@@ -195,3 +195,122 @@ class AdminRegisterCompanyForm(forms.Form):
                 self.fields['lga'].queryset = LGA.objects.filter(state_id=state_id)
             except (ValueError, TypeError):
                 self.fields['lga'].queryset = LGA.objects.none()
+
+
+# ─────────────────────────────────────────
+# STUDENT PROFILE EDIT FORM
+# ─────────────────────────────────────────
+class StudentProfileEditForm(forms.ModelForm):
+    first_name = forms.CharField(max_length=100)
+    last_name  = forms.CharField(max_length=100)
+    email      = forms.EmailField()
+    phone      = forms.CharField(max_length=20)
+
+    preferred_state = forms.ModelChoiceField(
+        queryset=State.objects.all(), required=False
+    )
+    preferred_lga = forms.ModelChoiceField(
+        queryset=LGA.objects.none(), required=False
+    )
+
+    class Meta:
+        model  = StudentProfile
+        fields = ['department', 'institution', 'skills', 'preferred_state', 'preferred_lga']
+        widgets = {
+            'skills': forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        # pre-fill user fields
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial  = self.user.last_name
+            self.fields['email'].initial      = self.user.email
+            self.fields['phone'].initial      = self.user.phone
+
+        # load LGAs for existing preferred state
+        if self.instance and self.instance.preferred_state:
+            self.fields['preferred_lga'].queryset = LGA.objects.filter(
+                state=self.instance.preferred_state
+            )
+        # load LGAs from POST data
+        if 'preferred_state' in self.data:
+            try:
+                state_id = int(self.data.get('preferred_state'))
+                self.fields['preferred_lga'].queryset = LGA.objects.filter(
+                    state_id=state_id
+                )
+            except (ValueError, TypeError):
+                pass
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if self.user:
+            self.user.first_name = self.cleaned_data['first_name']
+            self.user.last_name  = self.cleaned_data['last_name']
+            self.user.email      = self.cleaned_data['email']
+            self.user.phone      = self.cleaned_data['phone']
+            self.user.save()
+        if commit:
+            profile.save()
+        return profile
+
+
+# ─────────────────────────────────────────
+# COMPANY PROFILE EDIT FORM
+# ─────────────────────────────────────────
+class CompanyProfileEditForm(forms.ModelForm):
+    first_name   = forms.CharField(max_length=100, label='Contact First Name')
+    last_name    = forms.CharField(max_length=100, label='Contact Last Name')
+    email        = forms.EmailField()
+    phone        = forms.CharField(max_length=20)
+    state        = forms.ModelChoiceField(queryset=State.objects.all())
+    lga          = forms.ModelChoiceField(queryset=LGA.objects.none())
+
+    class Meta:
+        model  = CompanyProfile
+        fields = ['company_name', 'industry', 'description', 'address', 'website', 'state', 'lga']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+            'address'    : forms.Textarea(attrs={'rows': 2}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        if self.user:
+            self.fields['first_name'].initial = self.user.first_name
+            self.fields['last_name'].initial  = self.user.last_name
+            self.fields['email'].initial      = self.user.email
+            self.fields['phone'].initial      = self.user.phone
+
+        # load LGAs for existing state
+        if self.instance and self.instance.state:
+            self.fields['lga'].queryset = LGA.objects.filter(
+                state=self.instance.state
+            )
+        # load LGAs from POST data
+        if 'state' in self.data:
+            try:
+                state_id = int(self.data.get('state'))
+                self.fields['lga'].queryset = LGA.objects.filter(
+                    state_id=state_id
+                )
+            except (ValueError, TypeError):
+                pass
+
+    def save(self, commit=True):
+        profile = super().save(commit=False)
+        if self.user:
+            self.user.first_name = self.cleaned_data['first_name']
+            self.user.last_name  = self.cleaned_data['last_name']
+            self.user.email      = self.cleaned_data['email']
+            self.user.phone      = self.cleaned_data['phone']
+            self.user.save()
+        if commit:
+            profile.save()
+        return profile

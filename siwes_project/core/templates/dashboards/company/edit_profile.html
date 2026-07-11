@@ -1,0 +1,180 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="dash-wrap">
+    <!-- paste company sidebar here — mark Company Profile as active -->
+
+    <div class="main">
+        <div class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                    <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                </button>
+                <div class="topbar-left">
+                    <h5>Edit Company Profile</h5>
+                    <p>Update your company information</p>
+                </div>
+            </div>
+            <a href="{% url 'company_profile' %}" class="btn-ghost">
+                <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+                Back to Profile
+            </a>
+        </div>
+
+        <div class="content">
+            <div style="max-width:700px;margin:0 auto;">
+
+                {% if messages %}
+                {% for msg in messages %}
+                <div style="background:'{% if 'successfully' in msg.message %}'var(--success-light)'{% else %}'var(--danger-light)'{% endif %}';border:1px solid '{% if 'successfully' in msg.message %}'#bbf7d0'{% else %}'#fecaca'{% endif %}';border-radius:var(--radius-sm);padding:12px 18px;margin-bottom:20px;font-size:13.5px;font-weight:500;color:'{% if 'successfully' in msg.message %}'var(--success)'{% else %}'var(--danger)'{% endif %}';">
+                    {{ msg }}
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <form method="POST">
+                    {% csrf_token %}
+
+                    <!-- Contact Person -->
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:16px;">
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            Contact Person
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">First Name</label>
+                                <input type="text" name="first_name" class="form-control"
+                                       value="{{ form.first_name.value|default:'' }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Last Name</label>
+                                <input type="text" name="last_name" class="form-control"
+                                       value="{{ form.last_name.value|default:'' }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Email</label>
+                                <input type="email" name="email" class="form-control"
+                                       value="{{ form.email.value|default:'' }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Phone</label>
+                                <input type="text" name="phone" class="form-control"
+                                       value="{{ form.phone.value|default:'' }}">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company Info -->
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:16px;">
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            Company Information
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Company Name</label>
+                                <input type="text" name="company_name" class="form-control"
+                                       value="{{ form.company_name.value|default:'' }}" required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Industry</label>
+                                <input type="text" name="industry" class="form-control"
+                                       value="{{ form.industry.value|default:'' }}" required>
+                            </div>
+                            <div class="form-group full">
+                                <label class="form-label">Description</label>
+                                <textarea name="description" class="form-control" rows="3"
+                                          required>{{ form.description.value|default:'' }}</textarea>
+                            </div>
+                            <div class="form-group full">
+                                <label class="form-label">Address</label>
+                                <textarea name="address" class="form-control" rows="2"
+                                          required>{{ form.address.value|default:'' }}</textarea>
+                            </div>
+                            <div class="form-group full">
+                                <label class="form-label">Website <span style="color:var(--text-muted);font-weight:400;">(optional)</span></label>
+                                <input type="url" name="website" class="form-control"
+                                       value="{{ form.website.value|default:'' }}"
+                                       placeholder="https://example.com">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location -->
+                    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:24px;">
+                        <div style="font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            Location
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">State</label>
+                                <div class="select-wrap">
+                                    <select name="state" id="company_edit_state" class="form-control" required>
+                                        <option value="">-- Select State --</option>
+                                        {% for state in form.state.field.queryset %}
+                                        <option value="{{ state.id }}"
+                                            {% if form.state.value == state.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ state.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">LGA</label>
+                                <div class="select-wrap">
+                                    <select name="lga" id="company_edit_lga" class="form-control" required>
+                                        <option value="">-- Select LGA --</option>
+                                        {% for lga in form.lga.field.queryset %}
+                                        <option value="{{ lga.id }}"
+                                            {% if form.lga.value == lga.id|stringformat:"s" %}selected{% endif %}>
+                                            {{ lga.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="display:flex;gap:12px;justify-content:flex-end;">
+                        <a href="{% url 'company_profile' %}" class="btn-ghost">Cancel</a>
+                        <button type="submit" class="btn-primary-sm">
+                            <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v14a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+document.addEventListener('click', function(e) {
+    const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
+    if (window.innerWidth <= 768 && s && t && !s.contains(e.target) && !t.contains(e.target)) s.classList.remove('open');
+});
+
+document.getElementById('company_edit_state').addEventListener('change', function () {
+    const stateId   = this.value;
+    const lgaSelect = document.getElementById('company_edit_lga');
+    lgaSelect.innerHTML = '<option value="">-- Loading... --</option>';
+    if (stateId) {
+        fetch(`/ajax/load-lgas/?state_id=${stateId}`)
+            .then(res => res.json())
+            .then(data => {
+                lgaSelect.innerHTML = '<option value="">-- Select LGA --</option>';
+                data.forEach(lga => {
+                    lgaSelect.innerHTML += `<option value="${lga.id}">${lga.name}</option>`;
+                });
+            });
+    } else {
+        lgaSelect.innerHTML = '<option value="">-- Select LGA --</option>';
+    }
+});
+</script>
+{% endblock %}

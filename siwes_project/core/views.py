@@ -12,7 +12,7 @@ from django.contrib import messages
 
 
 # from urllib3 import request
-from .forms import AdminRegisterCompanyForm, StudentRegistrationForm, CompanyRegistrationForm, LoginForm, ApplicationForm, PlacementListingForm
+from .forms import AdminRegisterCompanyForm, StudentRegistrationForm, CompanyRegistrationForm, LoginForm, ApplicationForm, PlacementListingForm, StudentProfileEditForm, CompanyProfileEditForm
 from .models import LGA, AIRecommendation, StudentProfile, PlacementListing, Application, State, CompanyProfile, User
 from django.http import JsonResponse, HttpResponse
 from .ai import generate_recommendations
@@ -627,6 +627,65 @@ def company_profile(request):
     profile = get_object_or_404(CompanyProfile, user=request.user)
     context = {'profile': profile}
     return render(request, 'dashboards/company/company_profile.html', context)
+
+
+# ─────────────────────────────────────────
+# STUDENT EDIT PROFILE
+# ─────────────────────────────────────────
+@login_required
+def edit_student_profile(request):
+    if request.user.role != 'student':
+        return redirect('login')
+
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    form    = StudentProfileEditForm(
+        request.POST or None,
+        instance=profile,
+        user=request.user
+    )
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('my_profile')
+        else:
+            messages.error(request, 'Please fix the errors below.')
+
+    return render(request, 'dashboards/student/edit_profile.html', {
+        'form'   : form,
+        'profile': profile,
+    })
+
+
+# ─────────────────────────────────────────
+# COMPANY EDIT PROFILE
+# ─────────────────────────────────────────
+@login_required
+def edit_company_profile(request):
+    if request.user.role != 'company':
+        return redirect('login')
+
+    profile = get_object_or_404(CompanyProfile, user=request.user)
+    form    = CompanyProfileEditForm(
+        request.POST or None,
+        instance=profile,
+        user=request.user
+    )
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Company profile updated successfully.')
+            return redirect('company_profile')
+        else:
+            messages.error(request, 'Please fix the errors below.')
+
+    return render(request, 'dashboards/company/edit_profile.html', {
+        'form'   : form,
+        'profile': profile,
+    })
+
 
 # ─────────────────────────────────────────
 # POST NEW LISTING

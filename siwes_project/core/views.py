@@ -588,6 +588,35 @@ def my_applications(request):
     return render(request, 'dashboards/student/my_applications.html', context)
 
 
+# ─────────────────────────────────────────
+# STUDENT EDIT PROFILE
+# ─────────────────────────────────────────
+@login_required
+def edit_student_profile(request):
+    if request.user.role != 'student':
+        return redirect('login')
+
+    profile = get_object_or_404(StudentProfile, user=request.user)
+    form    = StudentProfileEditForm(
+        request.POST or None,
+        instance=profile,
+        user=request.user
+    )
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated successfully.')
+            return redirect('my_profile')
+        else:
+            messages.error(request, 'Please fix the errors below.')
+
+    return render(request, 'dashboards/student/edit_profile.html', {
+        'form'   : form,
+        'profile': profile,
+    })
+
+
 @login_required
 def company_dashboard(request):
     if request.user.role != 'company':
@@ -627,35 +656,6 @@ def company_profile(request):
     profile = get_object_or_404(CompanyProfile, user=request.user)
     context = {'profile': profile}
     return render(request, 'dashboards/company/company_profile.html', context)
-
-
-# ─────────────────────────────────────────
-# STUDENT EDIT PROFILE
-# ─────────────────────────────────────────
-@login_required
-def edit_student_profile(request):
-    if request.user.role != 'student':
-        return redirect('login')
-
-    profile = get_object_or_404(StudentProfile, user=request.user)
-    form    = StudentProfileEditForm(
-        request.POST or None,
-        instance=profile,
-        user=request.user
-    )
-
-    if request.method == 'POST':
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Profile updated successfully.')
-            return redirect('my_profile')
-        else:
-            messages.error(request, 'Please fix the errors below.')
-
-    return render(request, 'dashboards/student/edit_profile.html', {
-        'form'   : form,
-        'profile': profile,
-    })
 
 
 # ─────────────────────────────────────────
@@ -785,7 +785,7 @@ def listing_applications(request, listing_id):
         'selected_status' : status,
         'total'           : Application.objects.filter(listing=listing).count(),
         'pending'         : Application.objects.filter(listing=listing, status='pending').count(),
-        'accepted'        : Application.objects.filter(listing=listing, status='accepted').count(),
+        'accepted'        : Application.objects.filter(listing=listing, status='offer_accepted').count(),
         'rejected'        : Application.objects.filter(listing=listing, status='rejected').count(),
     }
     

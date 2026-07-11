@@ -118,7 +118,7 @@
                     <!-- Personal Info -->
                     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:16px;">
                         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-clr)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                             Personal Information
                         </div>
                         <div class="form-grid">
@@ -148,7 +148,7 @@
                     <!-- Academic Info -->
                     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:16px;">
                         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-clr)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
                             Academic Information
                         </div>
                         <div class="form-grid">
@@ -163,9 +163,9 @@
                                        value="{{ form.institution.value|default:'' }}" required>
                             </div>
                             <div class="form-group full">
-                                <label class="form-label">Skills <span style="color:var(--text-muted);font-weight:400;">(comma-separated)</span></label>
+                                <label class="form-label">Skills <span style="color:var(--text-muted);font-weight:400;">(single-space-separated)</span></label>
                                 <textarea name="skills" class="form-control" rows="2"
-                                          placeholder="e.g. Python, Django, SQL">{{ form.skills.value|default:'' }}</textarea>
+                                          placeholder="e.g. Python Django SQL">{{ form.skills.value|default:'' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -173,7 +173,7 @@
                     <!-- Location Preferences -->
                     <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;box-shadow:var(--shadow);margin-bottom:24px;">
                         <div style="font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;font-weight:800;color:var(--text);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary-clr)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                             Placement Location Preference
                         </div>
                         <div class="form-grid">

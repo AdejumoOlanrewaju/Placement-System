@@ -143,8 +143,12 @@
                     class="tab {% if selected_status == 'pending'  %}tab-active{% endif %}">Pending</a>
                 <a href="?status=reviewed"
                     class="tab {% if selected_status == 'reviewed' %}tab-active{% endif %}">Reviewed</a>
-                <a href="?status=accepted"
-                    class="tab {% if selected_status == 'accepted' %}tab-active{% endif %}">Accepted</a>
+                <a href="?status=offered"
+                    class="tab {% if selected_status == 'reviewed' %}tab-active{% endif %}">Offered</a>
+                <a href="?status=offer_accepted"
+                    class="tab {% if selected_status == 'offer_accepted' %}tab-active{% endif %}">Accepted</a>
+                <a href="?status=offer_declined"
+                    class="tab {% if selected_status == 'offer_declined' %}tab-active{% endif %}">Declined</a>
                 <a href="?status=rejected"
                     class="tab {% if selected_status == 'rejected' %}tab-active{% endif %}">Rejected</a>
             </div>
@@ -181,8 +185,12 @@
                         <span class="badge badge-pending">Pending</span>
                         {% elif app.status == 'reviewed' %}
                         <span class="badge badge-reviewed">Reviewed</span>
-                        {% elif app.status == 'accepted' %}
+                        {% elif app.status == 'offered' %}
+                        <span class="badge badge-accepted">Offered</span>
+                        {% elif app.status == 'offer_accepted' %}
                         <span class="badge badge-accepted">Accepted</span>
+                        {% elif app.status == 'offer_declined' %}
+                        <span class="badge badge-accepted">Declined</span>
                         {% elif app.status == 'rejected' %}
                         <span class="badge badge-rejected">Rejected</span>
                         {% endif %}

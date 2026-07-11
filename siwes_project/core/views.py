@@ -772,9 +772,9 @@ def listing_applications(request, listing_id):
     applications = Application.objects.filter(
         listing=listing
     ).select_related('student__user').order_by('-applied_at')
-    print("Applications : ", applications)
+    # print("Applications : ", applications)
     status = request.GET.get('status', '')
-    print("Filter status: ", status)
+    # print("Filter status: ", status)
     if status:
         applications = applications.filter(status=status)
 

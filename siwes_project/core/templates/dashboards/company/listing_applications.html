@@ -233,8 +233,14 @@
                                     </option>
                                     <option value="offered" {% if app.status == 'offered' %}selected{% endif %}>Offered
                                     </option>
+                                    {%if app.status == 'offer_accepted'%}
                                     <option value="offer_accepted" {% if app.status == 'offer_accepted' %}selected{% endif %}>Accepted
                                     </option>
+                                    {%endif%}
+                                    {%if app.status == 'offer_declined'%}
+                                    <option value="offer_declined" {% if app.status == 'offer_declined' %}selected{% endif %}>Declined
+                                    </option>
+                                    {%endif%}
                                     <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Rejected
                                     </option>
                                 </select>

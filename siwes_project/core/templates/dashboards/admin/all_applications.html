@@ -146,7 +146,7 @@
             </form>
 
             <div class="table-card">
-                {% if applications %}
+                {% if apps %}
                 <table>
                     <thead>
                         <tr>
@@ -159,7 +159,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for app in applications %}
+                        {% for app in apps %}
                         <tr>
                             <td>
                                 <div style="display:flex;align-items:center;gap:10px;">
@@ -215,6 +215,6 @@ document.addEventListener('click', function(e) {
     const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
     if (window.innerWidth <= 768 && s && t && !s.contains(e.target) && !t.contains(e.target)) s.classList.remove('open');
 });
-console.log('{{applications}}')
+console.log('{{apps}}')
 </script>
 {% endblock %}

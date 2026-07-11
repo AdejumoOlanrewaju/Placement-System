@@ -1059,7 +1059,7 @@ def all_applications(request):
         )
 
     context = {
-        'applications'   : apps,
+        'apps'   : apps,
         'selected_status': status,
         'search'         : search,
         'total'          : apps.count(),

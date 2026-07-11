@@ -133,7 +133,9 @@
                         <option value="">All Statuses</option>
                         <option value="pending"  {% if selected_status == 'pending'  %}selected{% endif %}>Pending</option>
                         <option value="reviewed" {% if selected_status == 'reviewed' %}selected{% endif %}>Reviewed</option>
-                        <option value="accepted" {% if selected_status == 'accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="offered" {% if selected_status == 'offered' %}selected{% endif %}>Offered</option>
+                        <option value="offer_accepted" {% if selected_status == 'offer_accepted' %}selected{% endif %}>Accepted</option>
+                        <option value="offer_declined" {% if selected_status == 'offer_declined' %}selected{% endif %}>Declined</option>
                         <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
                     </select>
                     <button type="submit" class="btn-primary-sm">Search</button>
@@ -213,5 +215,6 @@ document.addEventListener('click', function(e) {
     const s = document.getElementById('sidebar'), t = document.querySelector('.sidebar-toggle');
     if (window.innerWidth <= 768 && s && t && !s.contains(e.target) && !t.contains(e.target)) s.classList.remove('open');
 });
+console.log('{{apps}}')
 </script>
 {% endblock %}

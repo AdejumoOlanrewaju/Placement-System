@@ -496,7 +496,7 @@ def my_profile(request):
 
     total_applied = Application.objects.filter(student=profile).count()
     pending       = Application.objects.filter(student=profile, status='pending').count()
-    accepted      = Application.objects.filter(student=profile, status='accepted').count()
+    accepted      = Application.objects.filter(student=profile, status='offer_accepted').count()
     rejected      = Application.objects.filter(student=profile, status='rejected').count()
 
     context = {

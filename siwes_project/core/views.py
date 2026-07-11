@@ -322,7 +322,7 @@ def student_dashboard(request):
     # stats
     total_applied = applications.count()
     pending       = applications.filter(status='pending').count()
-    accepted      = applications.filter(status='accepted').count()
+    accepted      = applications.filter(status='offer_accepted').count()
     rejected      = applications.filter(status='rejected').count()
 
     # load saved recommendations
@@ -632,7 +632,7 @@ def company_dashboard(request):
     active_listings    = listings.filter(is_active=True).count()
     total_applications = Application.objects.filter(listing__company=profile).count()
     pending_apps       = Application.objects.filter(listing__company=profile, status='pending').count()
-    accepted_apps      = Application.objects.filter(listing__company=profile, status='accepted').count()
+    accepted_apps      = Application.objects.filter(listing__company=profile, status='offer_accepted').count()
 
     context = {
         'profile'           : profile,
@@ -853,7 +853,7 @@ def admin_dashboard(request):
     total_listings   = PlacementListing.objects.count()
     active_listings  = PlacementListing.objects.filter(is_active=True).count()
     total_apps       = Application.objects.count()
-    accepted_apps    = Application.objects.filter(status='accepted').count()
+    accepted_apps    = Application.objects.filter(status='offer_accepted').count()
     pending_apps     = Application.objects.filter(status='pending').count()
 
     recent_students  = StudentProfile.objects.select_related('user').order_by('-created_at')[:6]

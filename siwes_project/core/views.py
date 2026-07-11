@@ -1057,7 +1057,7 @@ def all_applications(request):
         ) | apps.filter(
             listing__company__company_name__icontains=search
         )
-
+    print('Applications: ', apps)
     context = {
         'apps'   : apps,
         'selected_status': status,

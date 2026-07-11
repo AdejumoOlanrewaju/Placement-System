@@ -252,16 +252,14 @@
                                 <div
                                     style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:5px;">
                                     Registered</div>
-                                <div style="font-size:14px;font-weight:600;color:var(--text);">{{
-                                    profile.created_at|date:"d M Y" }}</div>
+                                <div style="font-size:14px;font-weight:600;color:var(--text);">{{ profile.created_at|date:"d M Y" }}</div>
                             </div>
                             {% if profile.verified_at %}
                             <div>
                                 <div
                                     style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin-bottom:5px;">
                                     Verified</div>
-                                <div style="font-size:14px;font-weight:600;color:var(--success);">{{
-                                    profile.verified_at|date:"d M Y" }}</div>
+                                <div style="font-size:14px;font-weight:600;color:var(--success);">{{ profile.verified_at|date:"d M Y" }}</div>
                             </div>
                             {% endif %}
                         </div>
